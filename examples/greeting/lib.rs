@@ -7,35 +7,17 @@ mod greeting {
     use ink_sdk::CrossChainBase;
     use ink_prelude::string::String;
     use ink_prelude::vec::Vec;
-    use Payload::message_define::{
+    use payload::message_define::{
         ISentMessage,
         ISession,
         ISQoS,
         ISQoSType,
         IContent,
-        IError,
     };
-    use Payload::message_protocol::{
+    use payload::message_protocol::{
         MsgType,
-        MessageItem,
         MessagePayload,
     };
-
-    fn convert_address(s: &str) -> AccountId {
-        let mut begin = 0;
-        if &s[0..2] == "0x" {
-            begin = 2;
-        }
-    
-        let mut v: [u8; 32] = [0; 32];
-        let mut index = 0;
-        for i in begin/2..s.len()/2 {
-            v[index] = u8::from_str_radix(&s[i * 2..i * 2 + 2], 16).unwrap();
-            index = index + 1;
-        }
-        
-        AccountId::try_from(v).unwrap()
-    }
 
     /// Defines the storage of your contract.
     /// Add new fields to the below struct in order
@@ -44,6 +26,10 @@ mod greeting {
     pub struct Greeting {
         cross_chain_contract: Option<AccountId>,
         ret: Option<String>,
+    }
+
+    /// We use `CrossChainBase` of SDK here
+    impl CrossChainBase for Greeting {
     }
 
     impl Greeting {
@@ -99,9 +85,6 @@ mod greeting {
         }
     }
 
-    impl CrossChainBase for Greeting {
-    }
-
     /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`
     /// module and test functions are marked with a `#[test]` attribute.
     /// The below code is technically just normal Rust code.
@@ -112,7 +95,7 @@ mod greeting {
 
         /// Imports `ink_lang` so we can use `#[ink::test]`.
         use ink_lang as ink;
-        use Payload::message_define::{
+        use payload::message_define::{
             ISentMessage,
             ISession,
             ISQoS,
