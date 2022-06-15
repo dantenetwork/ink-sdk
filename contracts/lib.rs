@@ -4,7 +4,10 @@ mod cross_chain_base;
 
 use ink_lang as ink;
 pub use cross_chain_base::CrossChainBase;
-use payload::message_define::ISentMessage;
+use payload::message_define::{
+    ISentMessage,
+    ISQoS,
+};
 
 #[ink::contract]
 mod ink_sdk {

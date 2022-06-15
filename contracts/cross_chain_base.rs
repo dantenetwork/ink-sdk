@@ -1,6 +1,10 @@
 use ink_env::AccountId;
+use ink_prelude::vec::Vec;
 
-use crate::ISentMessage;
+use crate::{
+    ISentMessage,
+    ISQoS,
+};
 
 fn convert_address(s: &str) -> AccountId {
     let mut begin = 0;
@@ -20,12 +24,32 @@ fn convert_address(s: &str) -> AccountId {
 
 const CROSS_CHAIN_CONTRACT_ADDRESS: &str = "0x0b8721b619a14ac6134676db96a8d5e30c92a3456cca77d2dd273167f9621f0f";
 const SEND_MESSAGE_SELECTOR: [u8; 4] = [0x27, 0x26, 0x79, 0x17];
+const REGISTER_SQOS_SELECTOR: [u8; 4] = [0x32, 0x80, 0x5c, 0x58];
 
 pub trait CrossChainBase {
     /// Returns cross-chain contract address
     fn get_cross_chain_contract_address(& self) -> AccountId {
         let default_address = convert_address(CROSS_CHAIN_CONTRACT_ADDRESS);
         default_address
+    }
+
+    /// Registers sqos
+    fn register_sqos(&mut self, sqos: Vec<ISQoS>) {
+        let cross_chain: AccountId = self.get_cross_chain_contract_address();
+        
+        ink_env::call::build_call::<ink_env::DefaultEnvironment>()
+                .call_type(
+                    ink_env::call::Call::new()
+                        .callee(cross_chain)
+                        .gas_limit(0)
+                        .transferred_value(0))
+                .exec_input(
+                    ink_env::call::ExecutionInput::new(ink_env::call::Selector::new(REGISTER_SQOS_SELECTOR))
+                    .push_arg(sqos)
+                )
+                .returns::<()>()
+                .fire()
+                .unwrap();
     }
 
     /// Send cross-chain message
