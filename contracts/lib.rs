@@ -4,20 +4,20 @@ mod cross_chain_base;
 
 use ink_lang as ink;
 pub use cross_chain_base::CrossChainBase;
-use Payload::message_define::ISentMessage;
+use payload::message_define::ISentMessage;
 
 #[ink::contract]
 mod ink_sdk {
     use ink_prelude::string::String;
     use ink_prelude::vec::Vec;
-    use Payload::message_define::{
+    use payload::message_define::{
         ISentMessage,
         ISession,
         ISQoS,
         ISQoSType,
         IContent,
     };
-    use Payload::message_protocol::{
+    use payload::message_protocol::{
         MsgType,
         MessagePayload,
     };
@@ -30,6 +30,14 @@ mod ink_sdk {
     pub struct InkSdk {
         cross_chain_contract: Option<AccountId>,
         ret: Option<String>,
+    }
+
+    /// We use `CrossChainBase` of SDK here
+    impl CrossChainBase for InkSdk {
+        /// Returns cross-chain contract address
+        fn get_cross_chain_contract_address(& self) -> AccountId {
+            self.cross_chain_contract.unwrap()
+        }
     }
 
     impl InkSdk {
@@ -85,13 +93,6 @@ mod ink_sdk {
         }
     }
 
-    impl CrossChainBase for InkSdk {
-        /// Returns cross-chain contract address
-        fn get_cross_chain_contract_address(& self) -> AccountId {
-            self.cross_chain_contract.unwrap()
-        }
-    }
-
     /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`
     /// module and test functions are marked with a `#[test]` attribute.
     /// The below code is technically just normal Rust code.
@@ -102,12 +103,6 @@ mod ink_sdk {
 
         /// Imports `ink_lang` so we can use `#[ink::test]`.
         use ink_lang as ink;
-        use Payload::message_define::{
-            ISentMessage,
-            ISession,
-            ISQoS,
-            IContent,
-        };
 
         /// We test if the new constructor does its job.
         #[ink::test]
@@ -118,9 +113,9 @@ mod ink_sdk {
         /// We test if set_cross_chain_contract works.
         #[ink::test]
         fn set_cross_chain_contract_works() {
-            let mut locker = InkSdk::new();
-            let contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
-            locker.set_cross_chain_contract(contract_id);
+            let mut ink_contract = InkSdk::new();
+            let cross_chain_contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
+            ink_contract.set_cross_chain_contract(cross_chain_contract_id);
         }
     }
 }
