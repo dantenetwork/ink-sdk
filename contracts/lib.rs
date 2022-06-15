@@ -27,20 +27,15 @@ const SEND_MESSAGE_SELECTOR: [u8; 4] = [0x27, 0x26, 0x79, 0x17];
 
 pub trait CrossChainBase {
     /// Returns cross-chain contract address
-    fn get_cross_chain_contract_address(& self) -> Option<AccountId> {
-        None
-    }
-
-    /// Returns send message method selector
-    fn get_send_message_method_selector(& self) -> Option<[u8; 4]> {
-        None
+    fn get_cross_chain_contract_address(& self) -> AccountId {
+        let default_address = convert_address(CROSS_CHAIN_CONTRACT_ADDRESS);
+        default_address
     }
 
     /// Send cross-chain message
     fn send_message(& self, message: ISentMessage) -> u128 {
-        let default_address = convert_address(CROSS_CHAIN_CONTRACT_ADDRESS);
-        let cross_chain: AccountId = self.get_cross_chain_contract_address().unwrap_or(default_address);
-        let send_message_selector = self.get_send_message_method_selector().unwrap_or(SEND_MESSAGE_SELECTOR);
+        let cross_chain: AccountId = self.get_cross_chain_contract_address();
+        
         let id: u128 = ink_env::call::build_call::<ink_env::DefaultEnvironment>()
                 .call_type(
                     ink_env::call::Call::new()
@@ -48,7 +43,7 @@ pub trait CrossChainBase {
                         .gas_limit(0)
                         .transferred_value(0))
                 .exec_input(
-                    ink_env::call::ExecutionInput::new(ink_env::call::Selector::new(send_message_selector))
+                    ink_env::call::ExecutionInput::new(ink_env::call::Selector::new(SEND_MESSAGE_SELECTOR))
                     .push_arg(message)
                 )
                 .returns::<u128>()
