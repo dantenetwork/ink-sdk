@@ -3,7 +3,7 @@
 use ink_lang as ink;
 
 #[ink::contract]
-mod greeting {
+mod os_computing {
     use ink_sdk::{
         CrossChainBase,
         MultiDestContracts,
@@ -44,14 +44,14 @@ mod greeting {
     }
 
     /// We use `CrossChainBase` of SDK here, to be able to use the basic cross-chain functionalities.
-    impl CrossChainBase for Greeting {
+    impl CrossChainBase for OSComputing {
         fn get_cross_chain_contract_address(& self) -> AccountId {
             self.cross_chain_contract.unwrap()
         }
     }
 
     /// We use `MultiDestContracts` of SDK here, to be able to send messages to multi chains.
-    impl MultiDestContracts for Greeting {      
+    impl MultiDestContracts for OSComputing {      
         #[ink(message)]  
         fn get_dest_contract_info(& self, chain_name: String, action: String) -> Option<(String, String)> {
             self.dest_contract_map.get((chain_name, action))
@@ -108,11 +108,15 @@ mod greeting {
                 result = result + i;
             }
 
-            let dest = self.get_dest_contract_info((chain_name.clone(), String::try_from("receive_com").unwrap()).ok_or(Error::MethodNotRegisterd)?;
+            let context = self.get_context();
+            let mut msg_payload = MessagePayload::new();
+            msg_payload.push_item(String::try_from("result").unwrap(), MsgType::InkU32, result);
+            let data = msg_payload.to_bytes();
+
+            let dest = self.get_dest_contract_info((context.from_chain.clone(), String::try_from("receive_computing_task_callback").unwrap())).ok_or(Error::MethodNotRegisterd)?;
             let contract = dest.0;
             let action = dest.1;
 
-            let context = self.get_context();
             let sqos = Vec::<ISQoS>::new();
             let content = IContent::new(contract, action, data);
             let message = ISentMessage::new(context.from_chain, sqos, content, session);
