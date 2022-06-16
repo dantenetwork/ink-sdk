@@ -14,11 +14,11 @@ mod ink_sdk {
     pub trait MultiDestContracts {
         /// Returns destination contract address and action name.
         #[ink(message)]
-        fn get_dest_contract_info(& self, chain_name: String) -> Option<(ink_prelude::vec::Vec<u8>, String)>;
+        fn get_dest_contract_info(& self, chain_name: String, action: String) -> Option<(String, String)>;
 
         /// Registers destination contract to which the ink contract will send message.
         #[ink(message)]
-        fn register_dest_contract(&mut self, chain_name: String, contract: String, action: String);
+        fn register_dest_contract(&mut self, chain_name: String, action: String, contract: String, dest_action: String);
     }
 
     /// Defines the storage of your contract.

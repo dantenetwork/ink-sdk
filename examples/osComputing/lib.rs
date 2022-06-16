@@ -37,7 +37,7 @@ mod greeting {
     /// to add new static storage fields to your contract.
     #[ink(storage)]
     #[derive(SpreadAllocate)]
-    pub struct Greeting {
+    pub struct OSComputing {
         cross_chain_contract: Option<AccountId>,
         ret: Option<String>,
         dest_contract_map: Mapping<(String, String), (String, String)>,
@@ -63,7 +63,7 @@ mod greeting {
         }
     }
 
-    impl Greeting {
+    impl OSComputing {
         #[ink(constructor)]
         pub fn new() -> Self {
             ink_lang::utils::initialize_contract(|_| {
@@ -76,19 +76,18 @@ mod greeting {
             self.cross_chain_contract = Some(contract);
         }
 
-        /// Sends greeting to another chain 
+        /// Sends computing task to another chain
         #[ink(message)]
-        pub fn send_greeting(&mut self, chain_name: String, greeting: Vec<String>) -> Result<(), Error> {
-            let dest = self.get_dest_contract_info(chain_name.clone(), String::try_from("receiveGreeting").unwrap()).ok_or(Error::MethodNotRegisterd)?;
+        pub fn send_computing_task(&mut self, chain_name: String, nums: Vec<u32>) -> Result<(), Error> {
+            let dest = self.get_dest_contract_info((chain_name.clone(), String::try_from("send_computing_task").unwrap())).ok_or(Error::MethodNotRegisterd)?;
             let contract = dest.0;
             let action = dest.1;
 
             let mut msg_payload = MessagePayload::new();
-            msg_payload.push_item(String::try_from("greeting").unwrap(), MsgType::InkStringArray, greeting.clone());
+            msg_payload.push_item(String::try_from("nums").unwrap(), MsgType::InkU32Array, nums);
             let data = msg_payload.to_bytes();
 
-            let mut sqos = Vec::<ISQoS>::new();
-            sqos.push(ISQoS::new(ISQoSType::Reveal, None));
+            let sqos = Vec::<ISQoS>::new();
             let session = ISession::new(0, 0);
             let content = IContent::new(contract, action, data);
             let message = ISentMessage::new(chain_name, sqos, content, session);
@@ -98,16 +97,26 @@ mod greeting {
             Ok(())
         }
 
-        /// Receives greeting from another chain 
+        /// Receives computing task from another chain 
         #[ink(message)]
-        pub fn receive_greeting(&mut self, payload: MessagePayload) -> String {
-            let item = payload.get_item(String::try_from("greeting").unwrap()).unwrap();
-            let param: Vec<String> = scale::Decode::decode(&mut item.v.as_slice()).unwrap();
-            // let payload
-            let mut s = String::new();
-            s = s + &ink_prelude::format!("{:?}", param);
-            self.ret = Some(s.clone());
-            s
+        pub fn receive_computing_task(&mut self, payload: MessagePayload) -> String {
+            let item = payload.get_item(String::try_from("nums").unwrap()).unwrap();
+            let nums: Vec<u32> = scale::Decode::decode(&mut item.v.as_slice()).unwrap();
+
+            let result = 0;
+            for i in nums {
+                result = result + i;
+            }
+
+            let dest = self.get_dest_contract_info((chain_name.clone(), String::try_from("receive_com").unwrap()).ok_or(Error::MethodNotRegisterd)?;
+            let contract = dest.0;
+            let action = dest.1;
+
+            let context = self.get_context();
+            let sqos = Vec::<ISQoS>::new();
+            let content = IContent::new(contract, action, data);
+            let message = ISentMessage::new(context.from_chain, sqos, content, session);
+            self.send_message()
         }
 
         /// Receives message from another chain 
