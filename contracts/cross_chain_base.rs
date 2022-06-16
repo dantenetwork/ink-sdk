@@ -1,7 +1,8 @@
 use ink_env::AccountId;
 
-use crate::ISentMessage;
+use payload::message_define::ISentMessage;
 
+/// Converts hex string of address into [u8; 32]
 fn convert_address(s: &str) -> AccountId {
     let mut begin = 0;
     if &s[0..2] == "0x" {
@@ -18,17 +19,18 @@ fn convert_address(s: &str) -> AccountId {
     AccountId::try_from(v).unwrap()
 }
 
-const CROSS_CHAIN_CONTRACT_ADDRESS: &str = "0x0b8721b619a14ac6134676db96a8d5e30c92a3456cca77d2dd273167f9621f0f";
+const CROSS_CHAIN_CONTRACT_ADDRESS: &str = "0x9b33e9dbcc468833b9cec8e0642e4932487931ea092d789ffe51ee41fea4de7a";
 const SEND_MESSAGE_SELECTOR: [u8; 4] = [0x27, 0x26, 0x79, 0x17];
 
 pub trait CrossChainBase {
-    /// Returns cross-chain contract address
+    /// Returns cross-chain contract address.
+    /// If you do not want to use the built-in address, you can rewrite this method.
     fn get_cross_chain_contract_address(& self) -> AccountId {
         let default_address = convert_address(CROSS_CHAIN_CONTRACT_ADDRESS);
         default_address
     }
 
-    /// Send cross-chain message
+    /// Sends cross-chain message, and returns message id.
     fn send_message(& self, message: ISentMessage) -> u128 {
         let cross_chain: AccountId = self.get_cross_chain_contract_address();
         
