@@ -98,7 +98,7 @@ pub fn cross_chain_call<T: CrossChainBase>(contract: &mut T, request: IRequestMe
 
 /// Responds a cross-chain message, and returns the message id.
 pub fn cross_chain_respond<T: CrossChainBase>(contract: &mut T, response: IResponseMessage) -> u128 {
-    let context = get_context(contract);
+    let context = get_context(contract).unwrap();
     let session = ISession::new(2, context.id);
     let message = ISentMessage::new(context.from_chain, response.sqos, response.content, session);
     
@@ -106,7 +106,7 @@ pub fn cross_chain_respond<T: CrossChainBase>(contract: &mut T, response: IRespo
 }
 
 /// Returns context of Cross Chain
-pub fn get_context<T: CrossChainBase>(contract: &T) -> IContext {
+pub fn get_context<T: CrossChainBase>(contract: &T) -> Option<IContext> {
     let cross_chain: AccountId = <T as CrossChainBase>::get_cross_chain_contract_address(&contract);
     
     ink_env::call::build_call::<ink_env::DefaultEnvironment>()
@@ -118,7 +118,7 @@ pub fn get_context<T: CrossChainBase>(contract: &T) -> IContext {
             .exec_input(
                 ink_env::call::ExecutionInput::new(ink_env::call::Selector::new(GET_CONTEXT_SELECTOR))
             )
-            .returns::<IContext>()
+            .returns::<Option<IContext>>()
             .fire()
             .unwrap()
 }

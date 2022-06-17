@@ -18,6 +18,7 @@ mod os_computing {
         ISQoS,
         ISQoSType,
         IContent,
+        IContext,
     };
     use payload::message_protocol::{
         MsgType,
@@ -100,7 +101,7 @@ mod os_computing {
 
         /// Receives computing task from another chain 
         #[ink(message)]
-        pub fn receive_computing_task(& self, payload: MessagePayload) -> String {
+        pub fn receive_computing_task(&mut self, payload: MessagePayload) -> String {
             let item = payload.get_item(String::try_from("nums").unwrap()).unwrap();
             let nums: Vec<u32> = scale::Decode::decode(&mut item.v.as_slice()).unwrap();
 
@@ -109,23 +110,23 @@ mod os_computing {
                 result = result + i;
             }
 
-            let context = cross_chain_helper::get_context(self);
-            // let mut msg_payload = MessagePayload::new();
-            // msg_payload.push_item(String::try_from("result").unwrap(), MsgType::InkU32, result);
-            // let data = msg_payload.to_bytes();
+            let context = cross_chain_helper::get_context(self).unwrap();
+            let mut msg_payload = MessagePayload::new();
+            msg_payload.push_item(String::try_from("result").unwrap(), MsgType::InkU32, result);
+            let data = msg_payload.to_bytes();
 
-            // let dest_op = self.get_dest_contract_info(context.from_chain.clone(), String::try_from("receive_computing_task_callback").unwrap());
-            // if dest_op.is_none() {
-            //     return String::try_from("Error").unwrap()
-            // }
-            // let dest = dest_op.unwrap();
-            // let contract = dest.0;
-            // let action = dest.1;
+            let dest_op = self.get_dest_contract_info(context.from_chain.clone(), String::try_from("receive_computing_task_callback").unwrap());
+            if dest_op.is_none() {
+                return String::try_from("Error").unwrap()
+            }
+            let dest = dest_op.unwrap();
+            let contract = dest.0;
+            let action = dest.1;
 
-            // let sqos = Vec::<ISQoS>::new();
-            // let content = IContent::new(contract, action, data);
-            // let message = IResponseMessage::new(sqos, content);
-            // cross_chain_helper::cross_chain_respond(self, message);
+            let sqos = Vec::<ISQoS>::new();
+            let content = IContent::new(contract, action, data);
+            let message = IResponseMessage::new(sqos, content);
+            cross_chain_helper::cross_chain_respond(self, message);
 
             String::try_from("Ok").unwrap()
         }
