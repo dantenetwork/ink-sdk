@@ -1,15 +1,23 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-mod cross_chain_base;
-
 use ink_lang as ink;
-pub use cross_chain_base::CrossChainBase;
-pub use ink_sdk::MultiDestContracts;
+
+pub mod cross_chain_helper;
+pub use ink_sdk::{
+    MultiDestContracts,
+    CrossChainSQoS,
+};
 
 #[ink::contract]
 mod ink_sdk {
     use ink_prelude::string::String;
+    use ink_prelude::vec::Vec;
+    use payload::message_define::{
+        ISQoSType,
+        ISQoS,
+    };
 
+    /// This trait can be used when a contract needs to communicate with more than one other chain.
     #[ink_lang::trait_definition]
     pub trait MultiDestContracts {
         /// Returns destination contract address and action name.
@@ -19,6 +27,27 @@ mod ink_sdk {
         /// Registers destination contract to which the ink contract will send message.
         #[ink(message)]
         fn register_dest_contract(&mut self, chain_name: String, action: String, contract: String, dest_action: String);
+    }
+
+    /// This trait can be used when a contract has custom SQoS demands.
+    #[ink_lang::trait_definition]
+    pub trait CrossChainSQoS {
+        /// Inserts one SQoS item.
+        /// If the item exists, it will be replaced.
+        #[ink(message)]
+        fn insert(& self, sqos_item: ISQoS);
+
+        /// Removes one SQoS item.
+        #[ink(message)]
+        fn remove(&mut self, sqos_type: ISQoSType);
+
+        /// Clear all SQoS items.
+        #[ink(message)]
+        fn clear(&mut self);
+
+        /// Sets SQoS items
+        #[ink(message)]
+        fn set(&mut self, sqos: Vec<ISQoS>);
     }
 
     /// Defines the storage of your contract.

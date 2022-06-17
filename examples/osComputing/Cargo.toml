@@ -1,5 +1,5 @@
 [package]
-name = "greeting"
+name = "os_computing"
 version = "0.1.0"
 authors = ["[your_name] <[your_email]>"]
 edition = "2021"
@@ -19,7 +19,7 @@ payload = { path = "../../../message-ink/payload/", default-features = false, fe
 ink_sdk = { path = "../../contracts/", default-features = false, features = ["ink-as-dependency"] }
 
 [lib]
-name = "greeting"
+name = "os_computing"
 path = "lib.rs"
 crate-type = [
 	# Used for normal contract Wasm blobs.

@@ -5,13 +5,15 @@ use ink_lang as ink;
 #[ink::contract]
 mod greeting {
     use ink_sdk::{
-        CrossChainBase,
+        CrossChainSQoS,
         MultiDestContracts,
+        cross_chain_helper,
     };
     use ink_prelude::string::String;
     use ink_prelude::vec::Vec;
     use payload::message_define::{
         ISentMessage,
+        IRequestMessage,
         ISession,
         ISQoS,
         ISQoSType,
@@ -43,8 +45,8 @@ mod greeting {
         dest_contract_map: Mapping<(String, String), (String, String)>,
     }
 
-    /// We use `CrossChainBase` of SDK here, to be able to use the basic cross-chain functionalities.
-    impl CrossChainBase for Greeting {
+    /// We use `CrossChainBase` here, to be able to use the sdk functionalities.
+    impl cross_chain_helper::CrossChainBase for Greeting {
         fn get_cross_chain_contract_address(& self) -> AccountId {
             self.cross_chain_contract.unwrap()
         }
@@ -61,6 +63,29 @@ mod greeting {
         fn register_dest_contract(&mut self, chain_name: String, action: String, contract: String, dest_action: String) {
             self.dest_contract_map.insert((chain_name, action), &(contract, dest_action));
         }
+    }
+
+    /// We use `CrossChainSQoS` here, because
+    impl CrossChainSQoS for Greeting {
+        /// Inserts one SQoS item.
+        /// If the item exists, it will be replaced.
+        #[ink(message)]
+        fn insert(& self, sqos_item: ISQoS) {
+            let context = cross_chain_helper.get_context();
+            context.sqos
+        }
+
+        /// Removes one SQoS item.
+        #[ink(message)]
+        fn remove(&mut self, sqos_type: ISQoSType);
+
+        /// Clear all SQoS items.
+        #[ink(message)]
+        fn clear(&mut self);
+
+        /// Sets SQoS items
+        #[ink(message)]
+        fn set(&mut self, sqos: Vec<ISQoS>);
     }
 
     impl Greeting {
@@ -89,11 +114,10 @@ mod greeting {
 
             let mut sqos = Vec::<ISQoS>::new();
             sqos.push(ISQoS::new(ISQoSType::Reveal, None));
-            let session = ISession::new(0, 0);
             let content = IContent::new(contract, action, data);
-            let message = ISentMessage::new(chain_name, sqos, content, session);
+            let message = IRequestMessage::new(chain_name, sqos, content);
 
-            self.send_message(message);
+            cross_chain_helper::cross_chain_send_message(self, message);
 
             Ok(())
         }
