@@ -103,7 +103,8 @@ mod os_computing {
         #[ink(message)]
         pub fn receive_computing_task(&mut self, payload: MessagePayload) -> String {
             let item = payload.get_item(String::try_from("nums").unwrap()).unwrap();
-            let nums: Vec<u32> = scale::Decode::decode(&mut item.v.as_slice()).unwrap();
+            // let nums: Vec<u32> = scale::Decode::decode(&mut item.v.as_slice()).unwrap();
+            let nums: Vec<u32> = item.in_to();
 
             let mut result = 0;
             for i in nums {
@@ -135,7 +136,8 @@ mod os_computing {
         #[ink(message)]
         pub fn receive_computing_task_callback(&mut self, payload: MessagePayload) -> String {
             let item = payload.get_item(String::try_from("result").unwrap()).unwrap();
-            let param: u32 = scale::Decode::decode(&mut item.v.as_slice()).unwrap();
+            // let param: u32 = scale::Decode::decode(&mut item.v.as_slice()).unwrap();
+            let param: u32 = item.in_to();
             // let payload
             let mut s = String::new();
             s = s + &ink_prelude::format!("{:?}", param);

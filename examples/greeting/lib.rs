@@ -161,7 +161,8 @@ mod greeting {
         #[ink(message)]
         pub fn receive_greeting(&mut self, payload: MessagePayload) -> String {
             let item = payload.get_item(String::try_from("greeting").unwrap()).unwrap();
-            let param: Vec<String> = scale::Decode::decode(&mut item.v.as_slice()).unwrap();
+            // let param: Vec<String> = scale::Decode::decode(&mut item.v.as_slice()).unwrap();
+            let param = item.in_to::<Vec<String>>();
             // let payload
             let mut s = String::new();
             s = s + &ink_prelude::format!("{:?}", param);
