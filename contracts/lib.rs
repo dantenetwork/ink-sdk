@@ -35,7 +35,7 @@ mod ink_sdk {
         /// Inserts one SQoS item.
         /// If the item exists, it will be replaced.
         #[ink(message)]
-        fn insert(& self, sqos_item: ISQoS);
+        fn insert(&mut self, sqos_item: ISQoS) -> Result<(), u8>;
 
         /// Removes one SQoS item.
         #[ink(message)]
@@ -47,7 +47,11 @@ mod ink_sdk {
 
         /// Sets SQoS items
         #[ink(message)]
-        fn set(&mut self, sqos: Vec<ISQoS>);
+        fn set(&mut self, sqos: Vec<ISQoS>) -> Result<(), u8>;
+
+        /// Returns SQoS items
+        #[ink(message)]
+        fn get(& self, a: u8) -> Vec<ISQoS>;
     }
 
     /// Defines the storage of your contract.

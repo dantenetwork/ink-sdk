@@ -13,6 +13,8 @@ const CROSS_CHAIN_CONTRACT_ADDRESS: &str = "0x9b33e9dbcc468833b9cec8e0642e493248
 const SEND_MESSAGE_SELECTOR: [u8; 4] = [0x27, 0x26, 0x79, 0x17];
 const REGISTER_SQOS_SELECTOR: [u8; 4] = [0x32, 0x80, 0x5c, 0x58];
 const GET_CONTEXT_SELECTOR: [u8; 4] = [0xee, 0xe9, 0xc1, 0xb3];
+const GET_SQOS_SELECTOR: [u8; 4] = [0x8d, 0xe9, 0x09, 0xd7];
+const SET_SQOS_SELECTOR: [u8; 4] = [0xc1, 0xe9, 0xbc, 0xda];
 
 /// Converts hex string of address into [u8; 32]
 fn convert_address(s: &str) -> AccountId {
@@ -121,4 +123,41 @@ pub fn get_context<T: CrossChainBase>(contract: &T) -> Option<IContext> {
             .returns::<Option<IContext>>()
             .fire()
             .unwrap()
+}
+
+/// Returns SQoS registered in Cross Chain
+pub fn get_sqos<T: CrossChainBase>(contract: &T) -> Vec<ISQoS> {
+    let cross_chain: AccountId = <T as CrossChainBase>::get_cross_chain_contract_address(&contract);
+    
+    ink_env::call::build_call::<ink_env::DefaultEnvironment>()
+            .call_type(
+                ink_env::call::Call::new()
+                    .callee(cross_chain)
+                    .gas_limit(0)
+                    .transferred_value(0))
+            .exec_input(
+                ink_env::call::ExecutionInput::new(ink_env::call::Selector::new(GET_SQOS_SELECTOR))
+            )
+            .returns::<Vec<ISQoS>>()
+            .fire()
+            .unwrap()
+}
+
+/// Sets SQoS registered in Cross Chain
+pub fn set_sqos<T: CrossChainBase>(contract: &T, sqos: Vec<ISQoS>) {
+    let cross_chain: AccountId = <T as CrossChainBase>::get_cross_chain_contract_address(&contract);
+    
+    ink_env::call::build_call::<ink_env::DefaultEnvironment>()
+            .call_type(
+                ink_env::call::Call::new()
+                    .callee(cross_chain)
+                    .gas_limit(0)
+                    .transferred_value(0))
+            .exec_input(
+                ink_env::call::ExecutionInput::new(ink_env::call::Selector::new(SET_SQOS_SELECTOR))
+                .push_arg(sqos)
+            )
+            .returns::<()>()
+            .fire()
+            .unwrap();
 }

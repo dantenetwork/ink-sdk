@@ -70,22 +70,57 @@ mod greeting {
         /// Inserts one SQoS item.
         /// If the item exists, it will be replaced.
         #[ink(message)]
-        fn insert(& self, sqos_item: ISQoS) {
-            let context = cross_chain_helper::get_context(self).unwrap();
-            // context.sqos
+        fn insert(&mut self, sqos_item: ISQoS) -> Result<(), u8> {
+            let mut sqos = cross_chain_helper::get_sqos(self);
+            for i in 0..sqos.len() {
+                if sqos_item.t == sqos[i].t {
+                    return Err(1);
+                }
+            }
+            sqos.push(sqos_item);
+            cross_chain_helper::set_sqos(self, sqos);
+            Ok(())
         }
 
         /// Removes one SQoS item.
         #[ink(message)]
-        fn remove(&mut self, sqos_type: ISQoSType);
+        fn remove(&mut self, sqos_type: ISQoSType) {
+            let mut sqos = cross_chain_helper::get_sqos(self);
+            for i in 0..sqos.len() {
+                if sqos[i].t == sqos_type {
+                    sqos.remove(i);
+                    break;
+                }
+            }
+            cross_chain_helper::set_sqos(self, sqos);
+        }
 
         /// Clear all SQoS items.
         #[ink(message)]
-        fn clear(&mut self);
+        fn clear(&mut self) {
+            let sqos = Vec::<ISQoS>::new();
+            cross_chain_helper::set_sqos(self, sqos);
+        }
 
         /// Sets SQoS items
         #[ink(message)]
-        fn set(&mut self, sqos: Vec<ISQoS>);
+        fn set(&mut self, sqos: Vec<ISQoS>) -> Result<(), u8> {
+            for i in 0..sqos.len() {
+                for j in (i + 1)..sqos.len() {
+                    if sqos[i].t == sqos[j].t {
+                        return Err(1);
+                    }
+                }
+            }
+            cross_chain_helper::set_sqos(self, sqos);
+            Ok(())
+        }
+
+        /// Returns SQoS items
+        #[ink(message)]
+        fn get(& self, a: u8) -> Vec<ISQoS> {
+            cross_chain_helper::get_sqos(self)
+        }
     }
 
     impl Greeting {
@@ -104,7 +139,7 @@ mod greeting {
         /// Sends greeting to another chain 
         #[ink(message)]
         pub fn send_greeting(&mut self, chain_name: String, greeting: Vec<String>) -> Result<(), Error> {
-            let dest = self.get_dest_contract_info(chain_name.clone(), String::try_from("receiveGreeting").unwrap()).ok_or(Error::MethodNotRegisterd)?;
+            let dest = self.get_dest_contract_info(chain_name.clone(), String::try_from("receive_greeting").unwrap()).ok_or(Error::MethodNotRegisterd)?;
             let contract = dest.0;
             let action = dest.1;
 
