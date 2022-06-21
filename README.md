@@ -91,6 +91,21 @@ You can use either of the examples as a template, it is the recommended way.
 ### New Project
 You can use the library in a totally new ink! project.
 - Create a new ink! project, you can refer it here https://docs.substrate.io/tutorials/v3/ink-workshop/pt1/.
+- Change `dependencies`
+    ```
+    ink_primitives = { version = "3.2.0", default-features = false }
+    ink_metadata = { version = "3.2.0", default-features = false, features = ["derive"], optional = true }
+    ink_env = { version = "3.2.0", default-features = false }
+    ink_storage = { version = "3.2.0", default-features = false }
+    ink_lang = { version = "3.2.0", default-features = false }
+    ink_prelude = { version = "3.2.0", default-features = false }
+
+    scale = { package = "parity-scale-codec", version = "3.1.5", default-features = false, features = ["derive"] }
+    scale-info = { version = "2.1.2", default-features = false, features = ["derive"], optional = true }
+
+    payload = { path = "../../../message-ink/payload/", default-features = false, features = ["ink-as-dependency"] }
+    ink_sdk = { path = "../../contracts/", default-features = false, features = ["ink-as-dependency"] }
+    ```
 - Use modules in lib.rs, `use ink_sdk::{cross_chain_helper}`, and other modules if you need.
 - Implement the trait `cross_chain_helper::CrossChainBase`, the method `get_cross_chain_contract_address` has default implementation.
 - Write your code.
