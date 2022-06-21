@@ -6,7 +6,6 @@ use ink_lang as ink;
 mod os_computing {
     use ink_sdk::{
         Ownable,
-        CrossChainSQoS,
         MultiDestContracts,
         cross_chain_helper,
     };
@@ -15,11 +14,8 @@ mod os_computing {
     use payload::message_define::{
         IRequestMessage,
         IResponseMessage,
-        ISession,
         ISQoS,
-        ISQoSType,
         IContent,
-        IContext,
     };
     use payload::message_protocol::{
         MsgType,

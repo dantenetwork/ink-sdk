@@ -66,7 +66,7 @@ mod ink_sdk {
 
         /// Returns SQoS items
         #[ink(message)]
-        fn get(& self, a: u8) -> Vec<ISQoS>;
+        fn get(& self) -> Vec<ISQoS>;
     }
 
     /// Defines the storage of your contract.

@@ -13,9 +13,7 @@ mod greeting {
     use ink_prelude::string::String;
     use ink_prelude::vec::Vec;
     use payload::message_define::{
-        ISentMessage,
         IRequestMessage,
-        ISession,
         ISQoS,
         ISQoSType,
         IContent,
@@ -166,7 +164,7 @@ mod greeting {
 
         /// Returns SQoS items
         #[ink(message)]
-        fn get(& self, a: u8) -> Vec<ISQoS> {
+        fn get(& self) -> Vec<ISQoS> {
             cross_chain_helper::get_sqos(self)
         }
     }
