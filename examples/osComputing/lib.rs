@@ -5,6 +5,7 @@ use ink_lang as ink;
 #[ink::contract]
 mod os_computing {
     use ink_sdk::{
+        Ownable,
         CrossChainSQoS,
         MultiDestContracts,
         cross_chain_helper,
@@ -41,6 +42,8 @@ mod os_computing {
     #[ink(storage)]
     #[derive(SpreadAllocate)]
     pub struct OSComputing {
+        /// Account id of owner
+        owner: Option<AccountId>,
         cross_chain_contract: Option<AccountId>,
         ret: Option<String>,
         dest_contract_map: Mapping<(String, String), (String, String)>,
@@ -53,6 +56,35 @@ mod os_computing {
         }
     }
 
+    /// We need access control.
+    impl Ownable for OSComputing {
+        /// Returns the account id of the current owner
+        #[ink(message)]
+        fn owner(& self) -> Option<AccountId> {
+            self.owner
+        }
+
+        /// Renounces ownership of the contract
+        #[ink(message)]
+        fn renounce_ownership(&mut self) -> Result<(), u8> {
+            self.only_owner()?;
+
+            self.owner = None;
+
+            Ok(())
+        }
+
+        /// Transfer ownership to a new account id
+        #[ink(message)]
+        fn transfer_ownership(&mut self, new_owner: AccountId) -> Result<(), u8> {
+            self.only_owner()?;
+
+            self.owner = Some(new_owner);
+
+            Ok(())
+        }
+    }    
+
     /// We use `MultiDestContracts` of SDK here, to be able to send messages to multi chains.
     impl MultiDestContracts for OSComputing {      
         #[ink(message)]  
@@ -61,22 +93,47 @@ mod os_computing {
         }
 
         #[ink(message)]
-        fn register_dest_contract(&mut self, chain_name: String, action: String, contract: String, dest_action: String) {
+        fn register_dest_contract(&mut self, chain_name: String, action: String, contract: String, dest_action: String) -> Result<(), u8> {
+            self.only_owner()?;
+
             self.dest_contract_map.insert((chain_name, action), &(contract, dest_action));
+
+            Ok(())
         }
     }
 
     impl OSComputing {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::utils::initialize_contract(|_| {
+            ink_lang::utils::initialize_contract(|contract| {
+                Self::new_init(contract)
             })
+        }
+
+        /// Initializes the contract with the specified chain name.
+        fn new_init(&mut self) {
+            let caller = Self::env().caller();
+            self.owner = Some(caller);
         }
 
         /// Sets cross-chain contract address
         #[ink(message)]
-        pub fn set_cross_chain_contract(&mut self, contract: AccountId) {
+        pub fn set_cross_chain_contract(&mut self, contract: AccountId) -> Result<(), u8> {
+            self.only_owner()?;
+
             self.cross_chain_contract = Some(contract);
+
+            Ok(())
+        }
+
+        /// If caller is the owner of the contract
+        fn only_owner(& self) -> Result<(), u8> {
+            let caller = self.env().caller();
+            if self.owner.unwrap() != caller {
+                return Err(1);
+            }
+
+            Ok(())
         }
 
         /// Sends computing task to another chain
