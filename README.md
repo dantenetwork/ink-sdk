@@ -17,7 +17,7 @@ The cross-chain interaction module is contained in the file `cross_chain_helper.
 #### CrossChainBase
 `CrossChainBase` is a trait, which must be implemented by the contract struct to use the Ink! SDK.  
 You can use the default implemantation of `CrossChainBase::get_cross_chain_contract_address` like this:
-```
+```rust
 impl cross_chain_helper::CrossChainBase for Flip {
 }
 ```
@@ -28,7 +28,7 @@ Or you can rewrite the method if you want to use another cross-chain contract ad
 The function `cross_chain_send_message` sends a cross-chain message, and returns the message id recorded in the cross-chain contract.
 
 Example is shown below, or you can refer it in the example greeting.
-```
+```rust
 #[ink(message)]
 pub fn send_greeting(&mut self, chain_name: String, greeting: Vec<String>) -> Result<(), Error> {
     ...
@@ -44,7 +44,7 @@ pub fn send_greeting(&mut self, chain_name: String, greeting: Vec<String>) -> Re
 The function `cross_chain_call` sends a cross-chain message, and returns the message id recorded in the cross-chain contract. Later a callback in the application contract will be called.
 
 Example is shown below, or you can refer it in the example osComputing.
-```
+```rust
 #[ink(message)]
 pub fn send_computing_task(&mut self, chain_name: String, nums: Vec<u32>) -> Result<(), Error> {
     ...
@@ -60,7 +60,7 @@ pub fn send_computing_task(&mut self, chain_name: String, nums: Vec<u32>) -> Res
 The function `cross_chain_respond` responds a cross-chain request, and returns the message id recorded inthe cross-chain contract.
 
 Example is shown below, or you can refer it in the example osComputing.
-```
+```rust
 #[ink(message)]
 pub fn receive_computing_task(&mut self, payload: MessagePayload) -> String {
     ...
@@ -92,7 +92,7 @@ You can use either of the examples as a template, it is the recommended way.
 You can use the library in a totally new ink! project.
 - Create a new ink! project, you can refer it here https://docs.substrate.io/tutorials/v3/ink-workshop/pt1/.
 - Change `dependencies`
-    ```
+    ```rust
     ink_primitives = { version = "3.2.0", default-features = false }
     ink_metadata = { version = "3.2.0", default-features = false, features = ["derive"], optional = true }
     ink_env = { version = "3.2.0", default-features = false }
