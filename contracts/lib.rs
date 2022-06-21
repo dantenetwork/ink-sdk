@@ -4,6 +4,7 @@ use ink_lang as ink;
 
 pub mod cross_chain_helper;
 pub use ink_sdk::{
+    Ownable,
     MultiDestContracts,
     CrossChainSQoS,
 };
@@ -17,6 +18,20 @@ mod ink_sdk {
         ISQoS,
     };
 
+    /// This trait can be used when a contract need access control.
+    #[ink_lang::trait_definition]
+    pub trait Ownable {
+        /// Returns the account id of the current owner
+        #[ink(message)]
+        fn owner(& self) -> Option<AccountId>;
+        /// Renounces ownership of the contract
+        #[ink(message)]
+        fn renounce_ownership(&mut self) -> Result<(), u8>;
+        /// Transfer ownership to a new account id
+        #[ink(message)]
+        fn transfer_ownership(&mut self, new_owner: AccountId) -> Result<(), u8>;
+    }
+
     /// This trait can be used when a contract needs to communicate with more than one other chain.
     #[ink_lang::trait_definition]
     pub trait MultiDestContracts {
@@ -26,7 +41,7 @@ mod ink_sdk {
 
         /// Registers destination contract to which the ink contract will send message.
         #[ink(message)]
-        fn register_dest_contract(&mut self, chain_name: String, action: String, contract: String, dest_action: String);
+        fn register_dest_contract(&mut self, chain_name: String, action: String, contract: String, dest_action: String) -> Result<(), u8>;
     }
 
     /// This trait can be used when a contract has custom SQoS demands.
@@ -39,11 +54,11 @@ mod ink_sdk {
 
         /// Removes one SQoS item.
         #[ink(message)]
-        fn remove(&mut self, sqos_type: ISQoSType);
+        fn remove(&mut self, sqos_type: ISQoSType) -> Result<(), u8>;
 
         /// Clear all SQoS items.
         #[ink(message)]
-        fn clear(&mut self);
+        fn clear(&mut self) -> Result<(), u8>;
 
         /// Sets SQoS items
         #[ink(message)]

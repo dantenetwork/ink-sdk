@@ -5,6 +5,7 @@ use ink_lang as ink;
 #[ink::contract]
 mod greeting {
     use ink_sdk::{
+        Ownable,
         CrossChainSQoS,
         MultiDestContracts,
         cross_chain_helper,
@@ -40,6 +41,8 @@ mod greeting {
     #[ink(storage)]
     #[derive(SpreadAllocate)]
     pub struct Greeting {
+        /// Account id of owner
+        owner: Option<AccountId>,
         cross_chain_contract: Option<AccountId>,
         ret: Option<String>,
         dest_contract_map: Mapping<(String, String), (String, String)>,
@@ -52,6 +55,35 @@ mod greeting {
         }
     }
 
+    /// We need access control.
+    impl Ownable for Greeting {
+        /// Returns the account id of the current owner
+        #[ink(message)]
+        fn owner(& self) -> Option<AccountId> {
+            self.owner
+        }
+
+        /// Renounces ownership of the contract
+        #[ink(message)]
+        fn renounce_ownership(&mut self) -> Result<(), u8> {
+            self.only_owner()?;
+
+            self.owner = None;
+
+            Ok(())
+        }
+
+        /// Transfer ownership to a new account id
+        #[ink(message)]
+        fn transfer_ownership(&mut self, new_owner: AccountId) -> Result<(), u8> {
+            self.only_owner()?;
+
+            self.owner = Some(new_owner);
+
+            Ok(())
+        }
+    }
+
     /// We use `MultiDestContracts` of SDK here, to be able to send messages to multi chains.
     impl MultiDestContracts for Greeting {      
         #[ink(message)]  
@@ -60,8 +92,12 @@ mod greeting {
         }
 
         #[ink(message)]
-        fn register_dest_contract(&mut self, chain_name: String, action: String, contract: String, dest_action: String) {
+        fn register_dest_contract(&mut self, chain_name: String, action: String, contract: String, dest_action: String) -> Result<(), u8> {
+            self.only_owner()?;
+
             self.dest_contract_map.insert((chain_name, action), &(contract, dest_action));
+
+            Ok(())
         }
     }
 
@@ -71,6 +107,8 @@ mod greeting {
         /// If the item exists, it will be replaced.
         #[ink(message)]
         fn insert(&mut self, sqos_item: ISQoS) -> Result<(), u8> {
+            self.only_owner()?;
+            
             let mut sqos = cross_chain_helper::get_sqos(self);
             for i in 0..sqos.len() {
                 if sqos_item.t == sqos[i].t {
@@ -84,7 +122,9 @@ mod greeting {
 
         /// Removes one SQoS item.
         #[ink(message)]
-        fn remove(&mut self, sqos_type: ISQoSType) {
+        fn remove(&mut self, sqos_type: ISQoSType) -> Result<(), u8> {
+            self.only_owner()?;
+
             let mut sqos = cross_chain_helper::get_sqos(self);
             for i in 0..sqos.len() {
                 if sqos[i].t == sqos_type {
@@ -93,18 +133,26 @@ mod greeting {
                 }
             }
             cross_chain_helper::set_sqos(self, sqos);
+
+            Ok(())
         }
 
         /// Clear all SQoS items.
         #[ink(message)]
-        fn clear(&mut self) {
+        fn clear(&mut self) -> Result<(), u8> {
+            self.only_owner()?;
+            
             let sqos = Vec::<ISQoS>::new();
             cross_chain_helper::set_sqos(self, sqos);
+
+            Ok(())
         }
 
         /// Sets SQoS items
         #[ink(message)]
         fn set(&mut self, sqos: Vec<ISQoS>) -> Result<(), u8> {
+            self.only_owner()?;
+            
             for i in 0..sqos.len() {
                 for j in (i + 1)..sqos.len() {
                     if sqos[i].t == sqos[j].t {
@@ -126,14 +174,35 @@ mod greeting {
     impl Greeting {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::utils::initialize_contract(|_| {
+            ink_lang::utils::initialize_contract(|contract| {
+                Self::new_init(contract)
             })
+        }
+
+        /// Initializes the contract with the specified chain name.
+        fn new_init(&mut self) {
+            let caller = Self::env().caller();
+            self.owner = Some(caller);
         }
 
         /// Sets cross-chain contract address
         #[ink(message)]
-        pub fn set_cross_chain_contract(&mut self, contract: AccountId) {
+        pub fn set_cross_chain_contract(&mut self, contract: AccountId) -> Result<(), u8> {
+            self.only_owner()?;
+            
             self.cross_chain_contract = Some(contract);
+
+            Ok(())
+        }
+
+        /// If caller is the owner of the contract
+        fn only_owner(& self) -> Result<(), u8> {
+            let caller = self.env().caller();
+            if self.owner.unwrap() != caller {
+                return Err(1);
+            }
+
+            Ok(())
         }
 
         /// Sends greeting to another chain 
