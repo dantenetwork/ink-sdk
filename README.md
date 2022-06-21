@@ -51,7 +51,6 @@ pub fn send_computing_task(&mut self, chain_name: String, nums: Vec<u32>) -> Res
 
 Example is shown below, or you can refer it in the example osComputing.
 ```
-/// Receives computing task from another chain 
 #[ink(message)]
 pub fn receive_computing_task(&mut self, payload: MessagePayload) -> String {
     ...
@@ -62,7 +61,7 @@ pub fn receive_computing_task(&mut self, payload: MessagePayload) -> String {
 }
 ```
 
-## examples
+## Examples
 There are two examples in the repo, one is `greeting`, the other is `osComputing`. You can use either of the both examples as a template, if you want to create a new project.
 
 ### greeting
