@@ -14,8 +14,18 @@ This trait can be used when a contract has custom SQoS demands.
 ### Cross-chain Interacting Module
 The cross-chain interaction module is contained in the file `cross_chain_helper.rs`, which mainly provides functions to make cross-contract calls to cross-chain contract, as well as to make cross-chain interaction with other chains.
 
+#### CrossChainBase
+`CrossChainBase` is a trait, which must be implemented by the contract struct to use the Ink! SDK.  
+You can use the default implemantation of `CrossChainBase::get_cross_chain_contract_address` like this:
+```
+impl cross_chain_helper::CrossChainBase for Flip {
+}
+```
+
+Or you can rewrite the method if you want to use another cross-chain contract address.
+
 #### cross_chain_send_message
-`cross_chain_send_message` sends a cross-chain message, and returns the message id recorded in the cross-chain contract.
+The function `cross_chain_send_message` sends a cross-chain message, and returns the message id recorded in the cross-chain contract.
 
 Example is shown below, or you can refer it in the example greeting.
 ```
@@ -31,7 +41,7 @@ pub fn send_greeting(&mut self, chain_name: String, greeting: Vec<String>) -> Re
 ```
 
 #### cross_chain_call
-`cross_chain_call` sends a cross-chain message, and returns the message id recorded in the cross-chain contract. Later a callback in the application contract will be called.
+The function `cross_chain_call` sends a cross-chain message, and returns the message id recorded in the cross-chain contract. Later a callback in the application contract will be called.
 
 Example is shown below, or you can refer it in the example osComputing.
 ```
@@ -47,7 +57,7 @@ pub fn send_computing_task(&mut self, chain_name: String, nums: Vec<u32>) -> Res
 ```
 
 #### cross_chain_respond
-`cross_chain_respond` responds a cross-chain request, and returns the message id recorded inthe cross-chain contract.
+The function `cross_chain_respond` responds a cross-chain request, and returns the message id recorded inthe cross-chain contract.
 
 Example is shown below, or you can refer it in the example osComputing.
 ```
@@ -62,10 +72,25 @@ pub fn receive_computing_task(&mut self, payload: MessagePayload) -> String {
 ```
 
 ## Examples
-There are two examples in the repo, one is `greeting`, the other is `osComputing`. You can use either of the both examples as a template, if you want to create a new project.
+There are two examples in the repo, one is `greeting`, the other is `osComputing`.
 
 ### greeting
 The example shows how to send greeting messages to, and receive greeting messages from other chains with the Ink! SDK.
 
 ### osComputing
 The example shows a scenario in which sb. want to send a outsource computing task to another chain, and receive the result.
+
+## Usage
+### Use Examples
+You can use either of the examples as a template, it is the recommended way.
+
+- Copy the example.
+- Change the `package name` and `lib name` in Cargo.toml.
+- Write your code.
+
+### New Project
+You can use the library in a totally new ink! project.
+- Create a new ink! project, you can refer it here https://docs.substrate.io/tutorials/v3/ink-workshop/pt1/.
+- Use modules in lib.rs, `use ink_sdk::{cross_chain_helper}`, and other modules if you need.
+- Implement the trait `cross_chain_helper::CrossChainBase`, the method `get_cross_chain_contract_address` has default implementation.
+- Write your code.
