@@ -147,13 +147,13 @@ mod os_computing {
             let content = IContent::new(contract, action, data);
             let message = IRequestMessage::new(chain_name, sqos, content);
 
-            cross_chain_helper::cross_chain_call(self, message);
+            cross_chain_helper::cross_chain_call(self, message, 1_u32.to_be_bytes());
 
             Ok(())
         }
 
         /// Receives computing task from another chain 
-        #[ink(message)]
+        #[ink(message, selector = 1)]
         pub fn receive_computing_task(&mut self, payload: MessagePayload) -> String {
             let item = payload.get_item(String::try_from("nums").unwrap()).unwrap();
             // let nums: Vec<u32> = scale::Decode::decode(&mut item.v.as_slice()).unwrap();
@@ -169,24 +169,15 @@ mod os_computing {
             msg_payload.push_item(String::try_from("result").unwrap(), MsgDetail::InkU32(result));
             let data = msg_payload.to_bytes();
 
-            let dest_op = self.get_dest_contract_info(context.from_chain.clone(), String::try_from("receive_computing_task_callback").unwrap());
-            if dest_op.is_none() {
-                return String::try_from("Error").unwrap()
-            }
-            let dest = dest_op.unwrap();
-            let contract = dest.0;
-            let action = dest.1;
-
             let sqos = Vec::<ISQoS>::new();
-            let content = IContent::new(contract, action, data);
-            let message = IResponseMessage::new(sqos, content);
+            let message = IResponseMessage::new(sqos, data);
             cross_chain_helper::cross_chain_respond(self, message);
 
             String::try_from("Ok").unwrap()
         }
 
         /// Receives computing task from another chain 
-        #[ink(message)]
+        #[ink(message, selector = 2)]
         pub fn receive_computing_task_callback(&mut self, payload: MessagePayload) -> String {
             let item = payload.get_item(String::try_from("result").unwrap()).unwrap();
             // let param: u32 = scale::Decode::decode(&mut item.v.as_slice()).unwrap();

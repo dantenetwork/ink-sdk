@@ -1,9 +1,11 @@
 use ink_env::AccountId;
 use ink_prelude::vec::Vec;
+use ink_prelude::string::String;
 use payload::message_define::{
     ISentMessage,
     ISQoS,
     IContext,
+    IContent,
     ISession,
     IRequestMessage,
     IResponseMessage,
@@ -83,7 +85,7 @@ fn send_message<T: CrossChainBase>(contract: &mut T, message: ISentMessage) -> u
 
 /// Sends a cross-chain message, and returns the message id.
 pub fn cross_chain_send_message<T: CrossChainBase>(contract: &mut T, request: IRequestMessage) -> u128 {
-    let session = ISession::new(0, 0);
+    let session = ISession::new(0, None);
     let message = ISentMessage::new(request.to_chain, request.sqos, request.content, session);
 
     send_message(contract, message)
@@ -91,8 +93,8 @@ pub fn cross_chain_send_message<T: CrossChainBase>(contract: &mut T, request: IR
 
 /// Sends a cross-chain message, and returns the message id.
 /// Latar a callback will be called.
-pub fn cross_chain_call<T: CrossChainBase>(contract: &mut T, request: IRequestMessage) -> u128 {
-    let session = ISession::new(1, 0);
+pub fn cross_chain_call<T: CrossChainBase>(contract: &mut T, request: IRequestMessage, callback: [u8; 4]) -> u128 {
+    let session = ISession::new(0, Some(Vec::from(callback)));
     let message = ISentMessage::new(request.to_chain, request.sqos, request.content, session);
 
     send_message(contract, message)
@@ -101,8 +103,9 @@ pub fn cross_chain_call<T: CrossChainBase>(contract: &mut T, request: IRequestMe
 /// Responds a cross-chain message, and returns the message id.
 pub fn cross_chain_respond<T: CrossChainBase>(contract: &mut T, response: IResponseMessage) -> u128 {
     let context = get_context(contract).unwrap();
-    let session = ISession::new(2, context.id);
-    let message = ISentMessage::new(context.from_chain, response.sqos, response.content, session);
+    let session = ISession::new(context.id, None);
+    let content = IContent::new(context.sender, String::from_utf8(context.session.callback.unwrap()).unwrap(), response.data);
+    let message = ISentMessage::new(context.from_chain, response.sqos, content, session);
     
     send_message(contract, message)
 }
