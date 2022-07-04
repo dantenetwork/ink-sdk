@@ -18,7 +18,7 @@ mod os_computing {
         IContent,
     };
     use payload::message_protocol::{
-        MsgType,
+        MsgDetail,
         MessagePayload,
     };
     use ink_storage::{
@@ -140,7 +140,7 @@ mod os_computing {
             let action = dest.1;
 
             let mut msg_payload = MessagePayload::new();
-            msg_payload.push_item(String::try_from("nums").unwrap(), MsgType::InkU32Array, nums);
+            msg_payload.push_item(String::try_from("nums").unwrap(), MsgDetail::InkU32Array(nums));
             let data = msg_payload.to_bytes();
 
             let sqos = Vec::<ISQoS>::new();
@@ -157,7 +157,7 @@ mod os_computing {
         pub fn receive_computing_task(&mut self, payload: MessagePayload) -> String {
             let item = payload.get_item(String::try_from("nums").unwrap()).unwrap();
             // let nums: Vec<u32> = scale::Decode::decode(&mut item.v.as_slice()).unwrap();
-            let nums: Vec<u32> = item.in_to();
+            let nums = item.in_to::<Vec<u32>>().unwrap();
 
             let mut result = 0;
             for i in nums {
@@ -166,7 +166,7 @@ mod os_computing {
 
             let context = cross_chain_helper::get_context(self).unwrap();
             let mut msg_payload = MessagePayload::new();
-            msg_payload.push_item(String::try_from("result").unwrap(), MsgType::InkU32, result);
+            msg_payload.push_item(String::try_from("result").unwrap(), MsgDetail::InkU32(result));
             let data = msg_payload.to_bytes();
 
             let dest_op = self.get_dest_contract_info(context.from_chain.clone(), String::try_from("receive_computing_task_callback").unwrap());
@@ -190,7 +190,7 @@ mod os_computing {
         pub fn receive_computing_task_callback(&mut self, payload: MessagePayload) -> String {
             let item = payload.get_item(String::try_from("result").unwrap()).unwrap();
             // let param: u32 = scale::Decode::decode(&mut item.v.as_slice()).unwrap();
-            let param: u32 = item.in_to();
+            let param = item.in_to::<u32>().unwrap();
             // let payload
             let mut s = String::new();
             s = s + &ink_prelude::format!("{:?}", param);

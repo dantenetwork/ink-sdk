@@ -19,7 +19,7 @@ mod greeting {
         IContent,
     };
     use payload::message_protocol::{
-        MsgType,
+        MsgDetail,
         MessagePayload,
     };
     use ink_storage::{
@@ -211,7 +211,7 @@ mod greeting {
             let action = dest.1;
 
             let mut msg_payload = MessagePayload::new();
-            msg_payload.push_item(String::try_from("greeting").unwrap(), MsgType::InkStringArray, greeting.clone());
+            msg_payload.push_item(String::try_from("greeting").unwrap(), MsgDetail::InkStringArray(greeting.clone()));
             let data = msg_payload.to_bytes();
 
             let mut sqos = Vec::<ISQoS>::new();
