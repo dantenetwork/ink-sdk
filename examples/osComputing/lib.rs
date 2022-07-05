@@ -164,7 +164,6 @@ mod os_computing {
                 result = result + i;
             }
 
-            let context = cross_chain_helper::get_context(self).unwrap();
             let mut msg_payload = MessagePayload::new();
             msg_payload.push_item(String::try_from("result").unwrap(), MsgDetail::InkU32(result));
             let data = msg_payload.to_bytes();
