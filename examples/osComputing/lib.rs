@@ -147,7 +147,7 @@ mod os_computing {
             let content = IContent::new(contract, action, data);
             let message = IRequestMessage::new(chain_name, sqos, content);
 
-            cross_chain_helper::cross_chain_call(self, message, 1_u32.to_be_bytes());
+            cross_chain_helper::cross_chain_call(self, message, 2_u32.to_be_bytes());
 
             Ok(())
         }
