@@ -104,7 +104,8 @@ pub fn cross_chain_call<T: CrossChainBase>(contract: &mut T, request: IRequestMe
 pub fn cross_chain_respond<T: CrossChainBase>(contract: &mut T, response: IResponseMessage) -> u128 {
     let context = get_context(contract).unwrap();
     let session = ISession::new(context.id, None);
-    let content = IContent::new(context.sender, String::from_utf8(context.session.callback.unwrap()).unwrap(), response.data);
+    let callback = String::from("X") + &String::from_utf8(context.session.callback.unwrap()).unwrap();
+    let content = IContent::new(context.sender, callback, response.data);
     let message = ISentMessage::new(context.from_chain, response.sqos, content, session);
     
     send_message(contract, message)
