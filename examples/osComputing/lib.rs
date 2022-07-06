@@ -16,6 +16,7 @@ mod os_computing {
         IResponseMessage,
         ISQoS,
         IContent,
+        IContext,
     };
     use payload::message_protocol::{
         MsgDetail,
@@ -41,7 +42,7 @@ mod os_computing {
         /// Account id of owner
         owner: Option<AccountId>,
         cross_chain_contract: Option<AccountId>,
-        ret: Option<String>,
+        ret: Mapping<(String, u128), String>,
         dest_contract_map: Mapping<(String, String), (String, String)>,
     }
 
@@ -181,17 +182,18 @@ mod os_computing {
             let item = payload.get_item(String::try_from("result").unwrap()).unwrap();
             // let param: u32 = scale::Decode::decode(&mut item.v.as_slice()).unwrap();
             let param = item.in_to::<u32>().unwrap();
+            let context: IContext = cross_chain_helper::get_context(self).unwrap();
             // let payload
             let mut s = String::new();
             s = s + &ink_prelude::format!("{:?}", param);
-            self.ret = Some(s.clone());
+            self.ret.insert((context.from_chain, context.id), &s);
             s
         }
 
         /// Receives message from another chain 
         #[ink(message)]
-        pub fn get_ret(& self) -> String {
-            self.ret.clone().unwrap()
+        pub fn get_ret(& self, key: (String, u128)) -> String {
+            self.ret.get(key).unwrap_or(String::from("No value"))
         }
     }
 
