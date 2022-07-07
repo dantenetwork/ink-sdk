@@ -13,7 +13,7 @@ cargo contract new <your project name>
 
 ## Add `message_ink` library into `Cargo.toml`, like following:
 ```rust
-payload = { path = "../../../message-ink/payload/", default-features = false, features = ["ink-as-dependency"] }
+payload = { path = "<local path>/message-ink/payload/", default-features = false, features = ["ink-as-dependency"] }
 ```
 
 This will be published on `crates.io` later.
