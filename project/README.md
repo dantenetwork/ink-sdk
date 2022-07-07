@@ -2,7 +2,7 @@
 
 ## Clone `message_ink` to your local
 ```bash
-git clone https://github.com/dantenetwork/ink-sdk
+git clone https://github.com/dantenetwork/message-ink
 ```
 
 ## Create a New project
