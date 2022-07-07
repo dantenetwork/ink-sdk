@@ -37,7 +37,7 @@ Or you can rewrite the method if you want to use another cross-chain contract ad
 #### [cross_chain_send_message](./contracts/cross_chain_helper.rs#L87)
 The function `cross_chain_send_message` sends a cross-chain message, and returns the message id recorded in the cross-chain contract.
 
-Example is shown below, or you can refer it in the example greeting.
+Example is shown below, or you can refer it in the example [greeting](./examples/greeting/lib.rs#L209).
 ```rust
 #[ink(message)]
 pub fn send_greeting(&mut self, chain_name: String, greeting: Vec<String>) -> Result<(), Error> {
@@ -53,14 +53,14 @@ pub fn send_greeting(&mut self, chain_name: String, greeting: Vec<String>) -> Re
 #### [cross_chain_call](./contracts/cross_chain_helper.rs#L96)
 The function `cross_chain_call` sends a cross-chain message, and returns the message id recorded in the cross-chain contract. Later a callback in the application contract will be called.
 
-Example is shown below, or you can refer it in the example osComputing.
+Example is shown below, or you can refer it in the example [osComputing](./examples/osComputing/lib.rs#L138).
 ```rust
 #[ink(message)]
 pub fn send_computing_task(&mut self, chain_name: String, nums: Vec<u32>) -> Result<(), Error> {
     ...
     let message = IRequestMessage::new(chain_name, sqos, content);
 
-    cross_chain_helper::cross_chain_call(self, message);
+    cross_chain_helper::cross_chain_call(self, message, 2_u32.to_be_bytes());
 
     Ok(())
 }
@@ -69,7 +69,7 @@ pub fn send_computing_task(&mut self, chain_name: String, nums: Vec<u32>) -> Res
 #### [cross_chain_respond](./contracts/cross_chain_helper.rs#L104)
 The function `cross_chain_respond` responds a cross-chain request, and returns the message id recorded inthe cross-chain contract.
 
-Example is shown below, or you can refer it in the example osComputing.
+Example is shown below, or you can refer it in the example [osComputing](./examples/osComputing/lib.rs#L158).
 ```rust
 #[ink(message)]
 pub fn receive_computing_task(&mut self, payload: MessagePayload) -> String {
