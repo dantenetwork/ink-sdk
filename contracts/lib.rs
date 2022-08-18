@@ -37,11 +37,11 @@ mod ink_sdk {
     pub trait MultiDestContracts {
         /// Returns destination contract address and action name.
         #[ink(message)]
-        fn get_dest_contract_info(& self, chain_name: String, action: String) -> Option<(String, String)>;
+        fn get_dest_contract_info(& self, chain_name: String, action: String) -> Option<(Vec<u8>, Vec<u8>)>;
 
         /// Registers destination contract to which the ink contract will send message.
         #[ink(message)]
-        fn register_dest_contract(&mut self, chain_name: String, action: String, contract: String, dest_action: String) -> Result<(), u8>;
+        fn register_dest_contract(&mut self, chain_name: String, action: String, contract: Vec<u8>, dest_action: Vec<u8>) -> Result<(), u8>;
     }
 
     /// This trait can be used when a contract has custom SQoS demands.

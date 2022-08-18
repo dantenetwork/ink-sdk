@@ -1,6 +1,5 @@
 use ink_env::AccountId;
 use ink_prelude::vec::Vec;
-use ink_prelude::string::String;
 use payload::message_define::{
     ISentMessage,
     ISQoS,
@@ -85,7 +84,7 @@ fn send_message<T: CrossChainBase>(contract: &mut T, message: ISentMessage) -> u
 
 /// Sends a cross-chain message, and returns the message id.
 pub fn cross_chain_send_message<T: CrossChainBase>(contract: &mut T, request: IRequestMessage) -> u128 {
-    let session = ISession::new(0, None);
+    let session = ISession::new(0, Vec::<u8>::new());
     let message = ISentMessage::new(request.to_chain, request.sqos, request.content, session);
 
     send_message(contract, message)
@@ -94,7 +93,7 @@ pub fn cross_chain_send_message<T: CrossChainBase>(contract: &mut T, request: IR
 /// Sends a cross-chain message, and returns the message id.
 /// Latar a callback will be called.
 pub fn cross_chain_call<T: CrossChainBase>(contract: &mut T, request: IRequestMessage, callback: [u8; 4]) -> u128 {
-    let session = ISession::new(0, Some(Vec::from(callback)));
+    let session = ISession::new(0, Vec::from(callback));
     let message = ISentMessage::new(request.to_chain, request.sqos, request.content, session);
 
     send_message(contract, message)
@@ -103,9 +102,8 @@ pub fn cross_chain_call<T: CrossChainBase>(contract: &mut T, request: IRequestMe
 /// Responds a cross-chain message, and returns the message id.
 pub fn cross_chain_respond<T: CrossChainBase>(contract: &mut T, response: IResponseMessage) -> u128 {
     let context = get_context(contract).unwrap();
-    let session = ISession::new(context.id, None);
-    let callback = String::from("X") + &String::from_utf8(context.session.callback.unwrap()).unwrap();
-    let content = IContent::new(context.sender, callback, response.data);
+    let session = ISession::new(context.id, Vec::<u8>::new());
+    let content = IContent::new(context.sender, context.session.callback, response.data);
     let message = ISentMessage::new(context.from_chain, response.sqos, content, session);
     
     send_message(contract, message)

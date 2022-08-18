@@ -44,7 +44,7 @@ mod greeting {
         owner: Option<AccountId>,
         cross_chain_contract: Option<AccountId>,
         ret: Mapping<(String, u128), String>,
-        dest_contract_map: Mapping<(String, String), (String, String)>,
+        dest_contract_map: Mapping<(String, String), (Vec<u8>, Vec<u8>)>,
     }
 
     /// We use `CrossChainBase` here, to be able to use the sdk functionalities.
@@ -86,12 +86,12 @@ mod greeting {
     /// We use `MultiDestContracts` of SDK here, to be able to send messages to multi chains.
     impl MultiDestContracts for Greeting {      
         #[ink(message)]  
-        fn get_dest_contract_info(& self, chain_name: String, action: String) -> Option<(String, String)> {
+        fn get_dest_contract_info(& self, chain_name: String, action: String) -> Option<(Vec<u8>, Vec<u8>)> {
             self.dest_contract_map.get((chain_name, action))
         }
 
         #[ink(message)]
-        fn register_dest_contract(&mut self, chain_name: String, action: String, contract: String, dest_action: String) -> Result<(), u8> {
+        fn register_dest_contract(&mut self, chain_name: String, action: String, contract: Vec<u8>, dest_action: Vec<u8>) -> Result<(), u8> {
             self.only_owner()?;
 
             self.dest_contract_map.insert((chain_name, action), &(contract, dest_action));
