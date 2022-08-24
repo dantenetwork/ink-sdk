@@ -3,7 +3,7 @@
 use ink_lang as ink;
 
 pub mod cross_chain_helper;
-pub use ink_sdk::{
+pub use crate::ink_sdk::{
     Ownable,
     MultiDestContracts,
     CrossChainSQoS,
