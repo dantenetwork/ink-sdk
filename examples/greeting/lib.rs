@@ -216,7 +216,7 @@ mod greeting {
             let data = msg_payload.to_bytes();
 
             let mut sqos = Vec::<ISQoS>::new();
-            sqos.push(ISQoS::new(ISQoSType::Reveal, None));
+            sqos.push(ISQoS::new(ISQoSType::Reveal, Vec::new()));
             let content = IContent::new(contract, action, data);
             let message = IRequestMessage::new(chain_name, sqos, content);
 
