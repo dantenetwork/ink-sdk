@@ -1,4 +1,8 @@
 # Ink! SDK
+
+<img width="750" alt="web3 foundation_grants_badge_white" src="https://user-images.githubusercontent.com/83746881/187579403-a052c030-9a2c-4294-849f-60cf42af4b72.png">
+
+
 Ink! SDK makes it easy for ink developers in the Polkadot Ecosystem to use Dante Network to interact with other chains, such as Near, Ethereum, Avalanche, Flow.
 
 Click `Use this template` to start your multi-ecosystem dApp.
