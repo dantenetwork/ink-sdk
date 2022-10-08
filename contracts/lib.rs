@@ -1,7 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_lang as ink;
-
 pub mod cross_chain_helper;
 pub use ink_sdk::{
     Ownable,
@@ -11,15 +9,15 @@ pub use ink_sdk::{
 
 #[ink::contract]
 mod ink_sdk {
-    use ink_prelude::string::String;
-    use ink_prelude::vec::Vec;
+    use ink::prelude::string::String;
+    use ink::prelude::vec::Vec;
     use payload::message_define::{
         ISQoSType,
         ISQoS,
     };
 
     /// This trait can be used when a contract need access control.
-    #[ink_lang::trait_definition]
+    #[ink::trait_definition]
     pub trait Ownable {
         /// Returns the account id of the current owner
         #[ink(message)]
@@ -33,7 +31,7 @@ mod ink_sdk {
     }
 
     /// This trait can be used when a contract needs to communicate with more than one other chain.
-    #[ink_lang::trait_definition]
+    #[ink::trait_definition]
     pub trait MultiDestContracts {
         /// Returns destination contract address and action name.
         #[ink(message)]
@@ -45,7 +43,7 @@ mod ink_sdk {
     }
 
     /// This trait can be used when a contract has custom SQoS demands.
-    #[ink_lang::trait_definition]
+    #[ink::trait_definition]
     pub trait CrossChainSQoS {
         /// Inserts one SQoS item.
         /// If the item exists, it will be replaced.

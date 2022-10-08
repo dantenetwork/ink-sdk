@@ -1,5 +1,5 @@
-use ink_env::AccountId;
-use ink_prelude::vec::Vec;
+use ink::primitives::AccountId;
+use ink::prelude::vec::Vec;
 use payload::message_define::{
     ISentMessage,
     ISQoS,
@@ -47,14 +47,14 @@ pub trait CrossChainBase {
 pub fn register_sqos<T: CrossChainBase>(contract: &T, sqos: Vec<ISQoS>) {
     let cross_chain: AccountId = <T as CrossChainBase>::get_cross_chain_contract_address(&contract);
     
-    ink_env::call::build_call::<ink_env::DefaultEnvironment>()
+    ink::env::call::build_call::<ink::env::DefaultEnvironment>()
             .call_type(
-                ink_env::call::Call::new()
+                ink::env::call::Call::new()
                     .callee(cross_chain)
                     .gas_limit(0)
                     .transferred_value(0))
             .exec_input(
-                ink_env::call::ExecutionInput::new(ink_env::call::Selector::new(REGISTER_SQOS_SELECTOR))
+                ink::env::call::ExecutionInput::new(ink::env::call::Selector::new(REGISTER_SQOS_SELECTOR))
                 .push_arg(sqos)
             )
             .returns::<()>()
@@ -66,14 +66,14 @@ pub fn register_sqos<T: CrossChainBase>(contract: &T, sqos: Vec<ISQoS>) {
 fn send_message<T: CrossChainBase>(contract: &mut T, message: ISentMessage) -> u128 {
     let cross_chain: AccountId = <T as CrossChainBase>::get_cross_chain_contract_address(&contract);
     
-    let id: u128 = ink_env::call::build_call::<ink_env::DefaultEnvironment>()
+    let id: u128 = ink::env::call::build_call::<ink::env::DefaultEnvironment>()
             .call_type(
-                ink_env::call::Call::new()
+                ink::env::call::Call::new()
                     .callee(cross_chain)
                     .gas_limit(0)
                     .transferred_value(0))
             .exec_input(
-                ink_env::call::ExecutionInput::new(ink_env::call::Selector::new(SEND_MESSAGE_SELECTOR))
+                ink::env::call::ExecutionInput::new(ink::env::call::Selector::new(SEND_MESSAGE_SELECTOR))
                 .push_arg(message)
             )
             .returns::<u128>()
@@ -113,14 +113,14 @@ pub fn cross_chain_respond<T: CrossChainBase>(contract: &mut T, response: IRespo
 pub fn get_context<T: CrossChainBase>(contract: &T) -> Option<IContext> {
     let cross_chain: AccountId = <T as CrossChainBase>::get_cross_chain_contract_address(&contract);
     
-    ink_env::call::build_call::<ink_env::DefaultEnvironment>()
+    ink::env::call::build_call::<ink::env::DefaultEnvironment>()
             .call_type(
-                ink_env::call::Call::new()
+                ink::env::call::Call::new()
                     .callee(cross_chain)
                     .gas_limit(0)
                     .transferred_value(0))
             .exec_input(
-                ink_env::call::ExecutionInput::new(ink_env::call::Selector::new(GET_CONTEXT_SELECTOR))
+                ink::env::call::ExecutionInput::new(ink::env::call::Selector::new(GET_CONTEXT_SELECTOR))
             )
             .returns::<Option<IContext>>()
             .fire()
@@ -131,14 +131,14 @@ pub fn get_context<T: CrossChainBase>(contract: &T) -> Option<IContext> {
 pub fn get_sqos<T: CrossChainBase>(contract: &T) -> Vec<ISQoS> {
     let cross_chain: AccountId = <T as CrossChainBase>::get_cross_chain_contract_address(&contract);
     
-    ink_env::call::build_call::<ink_env::DefaultEnvironment>()
+    ink::env::call::build_call::<ink::env::DefaultEnvironment>()
             .call_type(
-                ink_env::call::Call::new()
+                ink::env::call::Call::new()
                     .callee(cross_chain)
                     .gas_limit(0)
                     .transferred_value(0))
             .exec_input(
-                ink_env::call::ExecutionInput::new(ink_env::call::Selector::new(GET_SQOS_SELECTOR))
+                ink::env::call::ExecutionInput::new(ink::env::call::Selector::new(GET_SQOS_SELECTOR))
             )
             .returns::<Vec<ISQoS>>()
             .fire()
@@ -149,14 +149,14 @@ pub fn get_sqos<T: CrossChainBase>(contract: &T) -> Vec<ISQoS> {
 pub fn set_sqos<T: CrossChainBase>(contract: &T, sqos: Vec<ISQoS>) {
     let cross_chain: AccountId = <T as CrossChainBase>::get_cross_chain_contract_address(&contract);
     
-    ink_env::call::build_call::<ink_env::DefaultEnvironment>()
+    ink::env::call::build_call::<ink::env::DefaultEnvironment>()
             .call_type(
-                ink_env::call::Call::new()
+                ink::env::call::Call::new()
                     .callee(cross_chain)
                     .gas_limit(0)
                     .transferred_value(0))
             .exec_input(
-                ink_env::call::ExecutionInput::new(ink_env::call::Selector::new(SET_SQOS_SELECTOR))
+                ink::env::call::ExecutionInput::new(ink::env::call::Selector::new(SET_SQOS_SELECTOR))
                 .push_arg(sqos)
             )
             .returns::<()>()
