@@ -13,7 +13,7 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2", default-features = false, features = ["derive", "serde", "decode"] }
 
 [lib]
-name = "payload"
+name = "ink_sdk"
 path = "lib.rs"
 crate-type = [
 	# Used for normal contract Wasm blobs.

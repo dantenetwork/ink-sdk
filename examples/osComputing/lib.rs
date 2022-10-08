@@ -1,7 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_lang as ink;
-
 #[ink::contract]
 mod os_computing {
     use ink_sdk::{
@@ -9,8 +7,8 @@ mod os_computing {
         MultiDestContracts,
         cross_chain_helper,
     };
-    use ink_prelude::string::String;
-    use ink_prelude::vec::Vec;
+    use ink::prelude::string::String;
+    use ink::prelude::vec::Vec;
     use payload::message_define::{
         IRequestMessage,
         IResponseMessage,
@@ -22,9 +20,9 @@ mod os_computing {
         MsgDetail,
         MessagePayload,
     };
-    use ink_storage::{
+    use ink::storage::{
         Mapping,
-        traits::SpreadAllocate,
+        // traits::SpreadAllocate,
     };
     
     #[derive(::scale::Encode, ::scale::Decode, Debug, PartialEq, Eq, Copy, Clone)]
@@ -37,7 +35,7 @@ mod os_computing {
     /// Add new fields to the below struct in order
     /// to add new static storage fields to your contract.
     #[ink(storage)]
-    #[derive(SpreadAllocate)]
+    // #[derive(SpreadAllocate)]
     pub struct OSComputing {
         /// Account id of owner
         owner: Option<AccountId>,
@@ -102,16 +100,19 @@ mod os_computing {
     impl OSComputing {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::utils::initialize_contract(|contract| {
-                Self::new_init(contract)
-            })
+            Self {
+                owner: Some(Self::env().caller()),
+                cross_chain_contract: None,
+                ret: Default::default(),
+                dest_contract_map: Default::default(),
+            }
         }
 
         /// Initializes the contract with the specified chain name.
-        fn new_init(&mut self) {
-            let caller = Self::env().caller();
-            self.owner = Some(caller);
-        }
+        // fn new_init(&mut self) {
+        //     let caller = Self::env().caller();
+        //     self.owner = Some(caller);
+        // }
 
         /// Sets cross-chain contract address
         #[ink(message)]
@@ -185,7 +186,7 @@ mod os_computing {
             let context: IContext = cross_chain_helper::get_context(self).unwrap();
             // let payload
             let mut s = String::new();
-            s = s + &ink_prelude::format!("{:?}", param);
+            s = s + &ink::prelude::format!("{:?}", param);
             self.ret.insert((context.from_chain, context.id), &s);
             s
         }
@@ -206,7 +207,6 @@ mod os_computing {
         use super::*;
 
         /// Imports `ink_lang` so we can use `#[ink::test]`.
-        use ink_lang as ink;
         use payload::message_define::{
             ISentMessage,
             ISession,
@@ -224,7 +224,7 @@ mod os_computing {
         #[ink::test]
         fn set_cross_chain_contract_works() {
             let mut locker = OSComputing::new();
-            let contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
+            let contract_id = ink::env::test::callee::<ink::env::DefaultEnvironment>();
             locker.set_cross_chain_contract(contract_id);
         }
     }

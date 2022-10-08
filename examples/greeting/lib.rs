@@ -1,7 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_lang as ink;
-
 #[ink::contract]
 mod greeting {
     use ink_sdk::{
@@ -10,8 +8,8 @@ mod greeting {
         MultiDestContracts,
         cross_chain_helper,
     };
-    use ink_prelude::string::String;
-    use ink_prelude::vec::Vec;
+    use ink::prelude::string::String;
+    use ink::prelude::vec::Vec;
     use payload::message_define::{
         IRequestMessage,
         ISQoS,
@@ -23,9 +21,9 @@ mod greeting {
         MsgDetail,
         MessagePayload,
     };
-    use ink_storage::{
+    use ink::storage::{
         Mapping,
-        traits::SpreadAllocate,
+        // traits::SpreadAllocate,
     };
     
     #[derive(::scale::Encode, ::scale::Decode, Debug, PartialEq, Eq, Copy, Clone)]
@@ -38,7 +36,7 @@ mod greeting {
     /// Add new fields to the below struct in order
     /// to add new static storage fields to your contract.
     #[ink(storage)]
-    #[derive(SpreadAllocate)]
+    // #[derive(SpreadAllocate)]
     pub struct Greeting {
         /// Account id of owner
         owner: Option<AccountId>,
@@ -173,16 +171,19 @@ mod greeting {
     impl Greeting {
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::utils::initialize_contract(|contract| {
-                Self::new_init(contract)
-            })
+            Self {
+                owner: Some(Self::env().caller()),
+                cross_chain_contract: None,
+                ret: Default::default(),
+                dest_contract_map: Default::default(),
+            }
         }
 
         /// Initializes the contract with the specified chain name.
-        fn new_init(&mut self) {
-            let caller = Self::env().caller();
-            self.owner = Some(caller);
-        }
+        // fn new_init(&mut self) {
+        //     let caller = Self::env().caller();
+        //     self.owner = Some(caller);
+        // }
 
         /// Sets cross-chain contract address
         #[ink(message)]
@@ -234,7 +235,7 @@ mod greeting {
             let context: IContext = cross_chain_helper::get_context(self).unwrap();
             // let payload
             let mut s = String::new();
-            s = s + &ink_prelude::format!("{:?}", param);
+            s = s + &ink::prelude::format!("{:?}", param);
             self.ret.insert((context.from_chain, context.id), &s);
             s
         }
@@ -254,8 +255,7 @@ mod greeting {
         /// Imports all the definitions from the outer scope so we can use them here.
         use super::*;
 
-        /// Imports `ink_lang` so we can use `#[ink::test]`.
-        use ink_lang as ink;
+        /// Imports `ink` so we can use `#[ink::test]`.
         use payload::message_define::{
             ISentMessage,
             ISession,
@@ -273,7 +273,7 @@ mod greeting {
         #[ink::test]
         fn set_cross_chain_contract_works() {
             let mut locker = Greeting::new();
-            let contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
+            let contract_id = ink::env::test::callee::<ink::env::DefaultEnvironment>();
             locker.set_cross_chain_contract(contract_id);
         }
     }
