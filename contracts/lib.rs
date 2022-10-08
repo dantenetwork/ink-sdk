@@ -1,7 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 pub mod cross_chain_helper;
-pub use ink_sdk::{
+pub use crate::ink_sdk::{
     Ownable,
     MultiDestContracts,
     CrossChainSQoS,
