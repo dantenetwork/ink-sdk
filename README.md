@@ -12,7 +12,7 @@ ink_sdk = { path = "<local path of ink_sdk>/contracts/", default-features = fals
 into `Cargo.toml` of your project.
 
 ## Library
-The library witch is contained in `contracts` is used to develop Ink! application contracts. The library provides two functional modules, practical traits and cross-chain interacting module.
+The library that is contained in `contracts` is used to develop Ink! application contracts. The library provides two functional modules, practical traits and cross-chain interacting module.
 
 ### Practical Traits
 #### [MultiDestContracts](./contracts/lib.rs#L37)
@@ -103,18 +103,13 @@ You can use the library in a totally new ink! project.
 - Create a new ink! project, you can refer it here https://docs.substrate.io/tutorials/v3/ink-workshop/pt1/.
 - Change `dependencies`
     ```rust
-    ink_primitives = { version = "3.2.0", default-features = false }
-    ink_metadata = { version = "3.2.0", default-features = false, features = ["derive"], optional = true }
-    ink_env = { version = "3.2.0", default-features = false }
-    ink_storage = { version = "3.2.0", default-features = false }
-    ink_lang = { version = "3.2.0", default-features = false }
-    ink_prelude = { version = "3.2.0", default-features = false }
+    ink = { version = "4.0.0-alpha.3", default-features = false }
 
-    scale = { package = "parity-scale-codec", version = "3.1.5", default-features = false, features = ["derive"] }
-    scale-info = { version = "2.1.2", default-features = false, features = ["derive"], optional = true }
+    scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
+    scale-info = { version = "2", default-features = false, features = ["derive", "serde", "decode"] }
 
-    payload = { path = "<local path of message_ink>/message-ink/payload/", default-features = false, features = ["ink-as-dependency"] }
-    ink_sdk = { path = "<local path of ink_sdk>/contracts/", default-features = false, features = ["ink-as-dependency"] }
+    payload = { path = "../../../message-ink/payload/", default-features = false, features = ["ink-as-dependency"] }
+    ink_sdk = { path = "../../contracts/", default-features = false, features = ["ink-as-dependency"] }
     ```
 - Use modules in lib.rs, `use ink_sdk::{cross_chain_helper}`, and other modules if you need.
 - Implement the trait `cross_chain_helper::CrossChainBase`, the method `get_cross_chain_contract_address` has default implementation.
