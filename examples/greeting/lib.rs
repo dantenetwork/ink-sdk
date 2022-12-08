@@ -2,30 +2,13 @@
 
 #[ink::contract]
 mod greeting {
-    use ink_sdk::{
-        Ownable,
-        CrossChainSQoS,
-        MultiDestContracts,
-        cross_chain_helper,
-    };
     use ink::prelude::string::String;
     use ink::prelude::vec::Vec;
-    use payload::message_define::{
-        IRequestMessage,
-        ISQoS,
-        ISQoSType,
-        IContent,
-        IContext,
-    };
-    use payload::message_protocol::{
-        MsgDetail,
-        MessagePayload,
-    };
-    use ink::storage::{
-        Mapping,
-        // traits::SpreadAllocate,
-    };
-    
+    use ink::storage::Mapping;
+    use ink_sdk::{cross_chain_helper, CrossChainSQoS, MultiDestContracts, Ownable};
+    use payload::message_define::{IContent, IContext, IRequestMessage, ISQoS, ISQoSType};
+    use payload::message_protocol::{MessagePayload, MsgDetail};
+
     #[derive(::scale::Encode, ::scale::Decode, Debug, PartialEq, Eq, Copy, Clone)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub enum Error {
@@ -47,7 +30,7 @@ mod greeting {
 
     /// We use `CrossChainBase` here, to be able to use the sdk functionalities.
     impl cross_chain_helper::CrossChainBase for Greeting {
-        fn get_cross_chain_contract_address(& self) -> AccountId {
+        fn get_cross_chain_contract_address(&self) -> AccountId {
             self.cross_chain_contract.unwrap()
         }
     }
@@ -56,7 +39,7 @@ mod greeting {
     impl Ownable for Greeting {
         /// Returns the account id of the current owner
         #[ink(message)]
-        fn owner(& self) -> Option<AccountId> {
+        fn owner(&self) -> Option<AccountId> {
             self.owner
         }
 
@@ -82,17 +65,28 @@ mod greeting {
     }
 
     /// We use `MultiDestContracts` of SDK here, to be able to send messages to multi chains.
-    impl MultiDestContracts for Greeting {      
-        #[ink(message)]  
-        fn get_dest_contract_info(& self, chain_name: String, action: String) -> Option<(Vec<u8>, Vec<u8>)> {
+    impl MultiDestContracts for Greeting {
+        #[ink(message)]
+        fn get_dest_contract_info(
+            &self,
+            chain_name: String,
+            action: String,
+        ) -> Option<(Vec<u8>, Vec<u8>)> {
             self.dest_contract_map.get((chain_name, action))
         }
 
         #[ink(message)]
-        fn register_dest_contract(&mut self, chain_name: String, action: String, contract: Vec<u8>, dest_action: Vec<u8>) -> Result<(), u8> {
+        fn register_dest_contract(
+            &mut self,
+            chain_name: String,
+            action: String,
+            contract: Vec<u8>,
+            dest_action: Vec<u8>,
+        ) -> Result<(), u8> {
             self.only_owner()?;
 
-            self.dest_contract_map.insert((chain_name, action), &(contract, dest_action));
+            self.dest_contract_map
+                .insert((chain_name, action), &(contract, dest_action));
 
             Ok(())
         }
@@ -105,7 +99,7 @@ mod greeting {
         #[ink(message)]
         fn insert(&mut self, sqos_item: ISQoS) -> Result<(), u8> {
             self.only_owner()?;
-            
+
             let mut sqos = cross_chain_helper::get_sqos(self);
             for i in 0..sqos.len() {
                 if sqos_item.t == sqos[i].t {
@@ -138,7 +132,7 @@ mod greeting {
         #[ink(message)]
         fn clear(&mut self) -> Result<(), u8> {
             self.only_owner()?;
-            
+
             let sqos = Vec::<ISQoS>::new();
             cross_chain_helper::set_sqos(self, sqos);
 
@@ -149,7 +143,7 @@ mod greeting {
         #[ink(message)]
         fn set(&mut self, sqos: Vec<ISQoS>) -> Result<(), u8> {
             self.only_owner()?;
-            
+
             for i in 0..sqos.len() {
                 for j in (i + 1)..sqos.len() {
                     if sqos[i].t == sqos[j].t {
@@ -163,7 +157,7 @@ mod greeting {
 
         /// Returns SQoS items
         #[ink(message)]
-        fn get(& self) -> Vec<ISQoS> {
+        fn get(&self) -> Vec<ISQoS> {
             cross_chain_helper::get_sqos(self)
         }
     }
@@ -189,14 +183,14 @@ mod greeting {
         #[ink(message)]
         pub fn set_cross_chain_contract(&mut self, contract: AccountId) -> Result<(), u8> {
             self.only_owner()?;
-            
+
             self.cross_chain_contract = Some(contract);
 
             Ok(())
         }
 
         /// If caller is the owner of the contract
-        fn only_owner(& self) -> Result<(), u8> {
+        fn only_owner(&self) -> Result<(), u8> {
             let caller = self.env().caller();
             if self.owner.unwrap() != caller {
                 return Err(1);
@@ -205,19 +199,31 @@ mod greeting {
             Ok(())
         }
 
-        /// Sends greeting to another chain 
+        /// Sends greeting to another chain
         #[ink(message)]
-        pub fn send_greeting(&mut self, chain_name: String, greeting: Vec<String>) -> Result<(), Error> {
-            let dest = self.get_dest_contract_info(chain_name.clone(), String::try_from("receive_greeting").unwrap()).ok_or(Error::MethodNotRegisterd)?;
+        pub fn send_greeting(
+            &mut self,
+            chain_name: String,
+            greeting: Vec<String>,
+        ) -> Result<(), Error> {
+            let dest = self
+                .get_dest_contract_info(
+                    chain_name.clone(),
+                    String::try_from("receive_greeting").unwrap(),
+                )
+                .ok_or(Error::MethodNotRegisterd)?;
             let contract = dest.0;
             let action = dest.1;
 
             let mut msg_payload = MessagePayload::new();
-            msg_payload.push_item(String::try_from("greeting").unwrap(), MsgDetail::InkStringArray(greeting.clone()));
+            msg_payload.push_item(
+                String::try_from("greeting").unwrap(),
+                MsgDetail::InkStringArray(greeting.clone()),
+            );
             let data = msg_payload.to_bytes();
 
-            let mut sqos = Vec::<ISQoS>::new();
-            sqos.push(ISQoS::new(ISQoSType::Reveal, Vec::new()));
+            let sqos = Vec::<ISQoS>::new();
+            // sqos.push(ISQoS::new(ISQoSType::Reveal, Vec::new()));
             let content = IContent::new(contract, action, data);
             let message = IRequestMessage::new(chain_name, sqos, content);
 
@@ -226,10 +232,12 @@ mod greeting {
             Ok(())
         }
 
-        /// Receives greeting from another chain 
+        /// Receives greeting from another chain
         #[ink(message)]
         pub fn receive_greeting(&mut self, payload: MessagePayload) -> String {
-            let item = payload.get_item(String::try_from("greeting").unwrap()).unwrap();
+            let item = payload
+                .get_item(String::try_from("greeting").unwrap())
+                .unwrap();
             // let param: Vec<String> = scale::Decode::decode(&mut item.v.as_slice()).unwrap();
             let param = item.in_to::<Vec<String>>();
             let context: IContext = cross_chain_helper::get_context(self).unwrap();
@@ -240,9 +248,9 @@ mod greeting {
             s
         }
 
-        /// Receives message from another chain 
+        /// Receives message from another chain
         #[ink(message)]
-        pub fn get_ret(& self, key: (String, u128)) -> String {
+        pub fn get_ret(&self, key: (String, u128)) -> String {
             self.ret.get(key).unwrap_or(String::from("No value"))
         }
     }
@@ -256,12 +264,7 @@ mod greeting {
         use super::*;
 
         /// Imports `ink` so we can use `#[ink::test]`.
-        use payload::message_define::{
-            ISentMessage,
-            ISession,
-            ISQoS,
-            IContent,
-        };
+        use payload::message_define::{IContent, ISQoS, ISentMessage, ISession};
 
         /// We test if the new constructor does its job.
         #[ink::test]
