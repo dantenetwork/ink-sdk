@@ -206,26 +206,12 @@ mod os_computing {
         /// Imports all the definitions from the outer scope so we can use them here.
         use super::*;
 
-        /// Imports `ink_lang` so we can use `#[ink::test]`.
-        use payload::message_define::{
-            ISentMessage,
-            ISession,
-            ISQoS,
-            IContent,
-        };
-
-        /// We test if the new constructor does its job.
-        #[ink::test]
-        fn new_works() {
-            let locker = OSComputing::new();
-        }
-
         /// We test if set_cross_chain_contract works.
         #[ink::test]
         fn set_cross_chain_contract_works() {
             let mut locker = OSComputing::new();
             let contract_id = ink::env::test::callee::<ink::env::DefaultEnvironment>();
-            locker.set_cross_chain_contract(contract_id);
+            locker.set_cross_chain_contract(contract_id).unwrap();
         }
     }
 }
