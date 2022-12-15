@@ -6,7 +6,7 @@ mod greeting {
     use ink::prelude::vec::Vec;
     use ink::storage::Mapping;
     use ink_sdk::{cross_chain_helper, CrossChainSQoS, MultiDestContracts, Ownable};
-    use payload::message_define::{IContent, IContext, IRequestMessage, ISQoS, ISQoSType};
+    use payload::message_define::{IContent, IContext, IRequestMessage, ISQoS};
     use payload::message_protocol::{MessagePayload, MsgDetail};
 
     #[derive(::scale::Encode, ::scale::Decode, Debug, PartialEq, Eq, Copy, Clone)]
@@ -97,68 +97,29 @@ mod greeting {
         /// Inserts one SQoS item.
         /// If the item exists, it will be replaced.
         #[ink(message)]
-        fn insert(&mut self, sqos_item: ISQoS) -> Result<(), u8> {
+        fn set_sqos(&mut self, sqos_item: ISQoS) {
             self.only_owner()?;
 
-            let mut sqos = cross_chain_helper::get_sqos(self);
-            for i in 0..sqos.len() {
-                if sqos_item.t == sqos[i].t {
-                    return Err(1);
-                }
-            }
-            sqos.push(sqos_item);
-            cross_chain_helper::set_sqos(self, sqos);
-            Ok(())
+            let account_id = Self::env().account_id();
+            cross_chain_helper::set_sqos(self, sqos_item, account_id);
         }
 
         /// Removes one SQoS item.
         #[ink(message)]
-        fn remove(&mut self, sqos_type: ISQoSType) -> Result<(), u8> {
-            self.only_owner()?;
+        fn remove_sqos(&mut self) {
+            // self.only_owner()?;
 
-            let mut sqos = cross_chain_helper::get_sqos(self);
-            for i in 0..sqos.len() {
-                if sqos[i].t == sqos_type {
-                    sqos.remove(i);
-                    break;
-                }
+            let account_id = Self::env().account_id();
+            if let Some(_) = cross_chain_helper::get_sqos(self, account_id) {
+                cross_chain_helper::remove_sqos(self, account_id);
             }
-            cross_chain_helper::set_sqos(self, sqos);
-
-            Ok(())
-        }
-
-        /// Clear all SQoS items.
-        #[ink(message)]
-        fn clear(&mut self) -> Result<(), u8> {
-            self.only_owner()?;
-
-            let sqos = Vec::<ISQoS>::new();
-            cross_chain_helper::set_sqos(self, sqos);
-
-            Ok(())
-        }
-
-        /// Sets SQoS items
-        #[ink(message)]
-        fn set(&mut self, sqos: Vec<ISQoS>) -> Result<(), u8> {
-            self.only_owner()?;
-
-            for i in 0..sqos.len() {
-                for j in (i + 1)..sqos.len() {
-                    if sqos[i].t == sqos[j].t {
-                        return Err(1);
-                    }
-                }
-            }
-            cross_chain_helper::set_sqos(self, sqos);
-            Ok(())
         }
 
         /// Returns SQoS items
         #[ink(message)]
-        fn get(&self) -> Vec<ISQoS> {
-            cross_chain_helper::get_sqos(self)
+        fn get_sqos(&self) -> Option<ISQoS> {
+            let account_id = Self::env().account_id();
+            cross_chain_helper::get_sqos(self, account_id)
         }
     }
 

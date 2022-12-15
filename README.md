@@ -81,6 +81,35 @@ pub fn receive_computing_task(&mut self, payload: MessagePayload) -> String {
 }
 ```
 
+#### [set_sqos](./contracts/cross_chain_helper.rs#L132)
+
+The function `set_sqos` is used to set the type of SQoS when the contract receive cross-chain messages from other chains.
+
+Example is shown below, or you can refer it in the example [greeting](./examples/greeting/lib.rs#L99).
+```rust
+#[ink(message)]
+fn set_sqos(&mut self, sqos_item: ISQoS) {
+    ...
+
+    let account_id = Self::env().account_id();
+    cross_chain_helper::set_sqos(self, sqos_item, account_id);
+}
+```
+
+#### [get_sqos](./contracts/cross_chain_helper.rs#L132)
+
+The function `get_sqos` is used to view the contract's SQoS type.
+
+Example is shown below, or you can refer it in the example [greeting](./examples/greeting/lib.rs#L118).
+```rust
+#[ink(message)]
+#[ink(message)]
+fn get_sqos(&self) -> Option<ISQoS> {
+    let account_id = Self::env().account_id();
+    cross_chain_helper::get_sqos(self, account_id)
+}
+```
+
 ## [Examples](./examples/)
 There are two examples in the repo, one is `greeting`, the other is `osComputing`.
 
@@ -89,6 +118,7 @@ The example shows how to send greeting messages to, and receive greeting message
 
 ### [osComputing](./examples/osComputing/)
 The example shows a scenario in which sb. want to send a outsource computing task to another chain, and receive the result.
+
 
 ## Usage
 ### Use Examples

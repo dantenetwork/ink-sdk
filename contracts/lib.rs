@@ -12,7 +12,6 @@ mod ink_sdk {
     use ink::prelude::string::String;
     use ink::prelude::vec::Vec;
     use payload::message_define::{
-        ISQoSType,
         ISQoS,
     };
 
@@ -48,23 +47,23 @@ mod ink_sdk {
         /// Inserts one SQoS item.
         /// If the item exists, it will be replaced.
         #[ink(message)]
-        fn insert(&mut self, sqos_item: ISQoS) -> Result<(), u8>;
+        fn set_sqos(&mut self, sqos_item: ISQoS);
 
         /// Removes one SQoS item.
         #[ink(message)]
-        fn remove(&mut self, sqos_type: ISQoSType) -> Result<(), u8>;
+        fn remove_sqos(&mut self);
 
-        /// Clear all SQoS items.
-        #[ink(message)]
-        fn clear(&mut self) -> Result<(), u8>;
+        // /// Clear all SQoS items.
+        // #[ink(message)]
+        // fn clear(&mut self) -> Result<(), u8>;
 
-        /// Sets SQoS items
-        #[ink(message)]
-        fn set(&mut self, sqos: Vec<ISQoS>) -> Result<(), u8>;
+        // /// Sets SQoS items
+        // #[ink(message)]
+        // fn set(&mut self, sqos: Vec<ISQoS>) -> Result<(), u8>;
 
         /// Returns SQoS items
         #[ink(message)]
-        fn get(& self) -> Vec<ISQoS>;
+        fn get_sqos(& self) -> Option<ISQoS>;
     }
 
     /// Defines the storage of your contract.

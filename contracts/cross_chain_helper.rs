@@ -16,6 +16,7 @@ const REGISTER_SQOS_SELECTOR: [u8; 4] = [0x32, 0x80, 0x5c, 0x58];
 const GET_CONTEXT_SELECTOR: [u8; 4] = [0xee, 0xe9, 0xc1, 0xb3];
 const GET_SQOS_SELECTOR: [u8; 4] = [0x8d, 0xe9, 0x09, 0xd7];
 const SET_SQOS_SELECTOR: [u8; 4] = [0xc1, 0xe9, 0xbc, 0xda];
+const REMOVE_SQOS_SELECTOR: [u8; 4] = [0x35, 0x2b, 0x71, 0xb5];
 
 /// Converts hex string of address into [u8; 32]
 fn convert_address(s: &str) -> AccountId {
@@ -43,24 +44,24 @@ pub trait CrossChainBase {
     }
 }
 
-/// Registers sqos
-pub fn register_sqos<T: CrossChainBase>(contract: &T, sqos: Vec<ISQoS>) {
-    let cross_chain: AccountId = <T as CrossChainBase>::get_cross_chain_contract_address(&contract);
+// /// Registers sqos
+// pub fn register_sqos<T: CrossChainBase>(contract: &T, sqos: ISQoS) {
+//     let cross_chain: AccountId = <T as CrossChainBase>::get_cross_chain_contract_address(&contract);
     
-    ink::env::call::build_call::<ink::env::DefaultEnvironment>()
-            .call_type(
-                ink::env::call::Call::new()
-                    .callee(cross_chain)
-                    .gas_limit(0)
-                    .transferred_value(0))
-            .exec_input(
-                ink::env::call::ExecutionInput::new(ink::env::call::Selector::new(REGISTER_SQOS_SELECTOR))
-                .push_arg(sqos)
-            )
-            .returns::<()>()
-            .fire()
-            .unwrap();
-}
+//     ink::env::call::build_call::<ink::env::DefaultEnvironment>()
+//             .call_type(
+//                 ink::env::call::Call::new()
+//                     .callee(cross_chain)
+//                     .gas_limit(0)
+//                     .transferred_value(0))
+//             .exec_input(
+//                 ink::env::call::ExecutionInput::new(ink::env::call::Selector::new(REGISTER_SQOS_SELECTOR))
+//                 .push_arg(sqos)
+//             )
+//             .returns::<()>()
+//             .fire()
+//             .unwrap();
+// }
 
 /// Sends a cross-chain message.
 fn send_message<T: CrossChainBase>(contract: &mut T, message: ISentMessage) -> u128 {
@@ -128,9 +129,9 @@ pub fn get_context<T: CrossChainBase>(contract: &T) -> Option<IContext> {
 }
 
 /// Returns SQoS registered in Cross Chain
-pub fn get_sqos<T: CrossChainBase>(contract: &T) -> Vec<ISQoS> {
+pub fn get_sqos<T: CrossChainBase>(contract: &T, account_id: AccountId) -> Option<ISQoS> {
     let cross_chain: AccountId = <T as CrossChainBase>::get_cross_chain_contract_address(&contract);
-    
+
     ink::env::call::build_call::<ink::env::DefaultEnvironment>()
             .call_type(
                 ink::env::call::Call::new()
@@ -139,14 +140,15 @@ pub fn get_sqos<T: CrossChainBase>(contract: &T) -> Vec<ISQoS> {
                     .transferred_value(0))
             .exec_input(
                 ink::env::call::ExecutionInput::new(ink::env::call::Selector::new(GET_SQOS_SELECTOR))
+                .push_arg(account_id)
             )
-            .returns::<Vec<ISQoS>>()
+            .returns::<Option<ISQoS>>()
             .fire()
             .unwrap()
 }
 
 /// Sets SQoS registered in Cross Chain
-pub fn set_sqos<T: CrossChainBase>(contract: &T, sqos: Vec<ISQoS>) {
+pub fn set_sqos<T: CrossChainBase>(contract: &T, sqos: ISQoS, account_id: AccountId) {
     let cross_chain: AccountId = <T as CrossChainBase>::get_cross_chain_contract_address(&contract);
     
     ink::env::call::build_call::<ink::env::DefaultEnvironment>()
@@ -157,7 +159,27 @@ pub fn set_sqos<T: CrossChainBase>(contract: &T, sqos: Vec<ISQoS>) {
                     .transferred_value(0))
             .exec_input(
                 ink::env::call::ExecutionInput::new(ink::env::call::Selector::new(SET_SQOS_SELECTOR))
+                .push_arg(account_id)
                 .push_arg(sqos)
+            )
+            .returns::<()>()
+            .fire()
+            .unwrap();
+}
+
+/// Remove SQoS registered in Cross Chain
+pub fn remove_sqos<T: CrossChainBase>(contract: &T, account_id: AccountId) {
+    let cross_chain: AccountId = <T as CrossChainBase>::get_cross_chain_contract_address(&contract);
+    
+    ink::env::call::build_call::<ink::env::DefaultEnvironment>()
+            .call_type(
+                ink::env::call::Call::new()
+                    .callee(cross_chain)
+                    .gas_limit(0)
+                    .transferred_value(0))
+            .exec_input(
+                ink::env::call::ExecutionInput::new(ink::env::call::Selector::new(REMOVE_SQOS_SELECTOR))
+                .push_arg(account_id)
             )
             .returns::<()>()
             .fire()
