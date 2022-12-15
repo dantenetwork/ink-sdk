@@ -110,6 +110,14 @@ fn get_sqos(&self) -> Option<ISQoS> {
 }
 ```
 
+### Other information
+The meaning of `session_type` in [Session](https://github.com/dantenetwork/message-ink/blob/b046fda43c11f4f1fc556102e9834558acea433b/payload/message_define.rs#L172):
+* 1: send out without callback;
+* 2: call out with callback;
+* 3: callback message;
+* 104: local error message;
+* 105: remote error message.
+
 ## [Examples](./examples/)
 There are two examples in the repo, one is `greeting`, the other is `osComputing`.
 
