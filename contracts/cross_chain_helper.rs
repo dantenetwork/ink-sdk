@@ -12,7 +12,7 @@ use payload::message_define::{
     
 const CROSS_CHAIN_CONTRACT_ADDRESS: &str = "0x9b33e9dbcc468833b9cec8e0642e4932487931ea092d789ffe51ee41fea4de7a";
 const SEND_MESSAGE_SELECTOR: [u8; 4] = [0x27, 0x26, 0x79, 0x17];
-const REGISTER_SQOS_SELECTOR: [u8; 4] = [0x32, 0x80, 0x5c, 0x58];
+// const REGISTER_SQOS_SELECTOR: [u8; 4] = [0x32, 0x80, 0x5c, 0x58];
 const GET_CONTEXT_SELECTOR: [u8; 4] = [0xee, 0xe9, 0xc1, 0xb3];
 const GET_SQOS_SELECTOR: [u8; 4] = [0x8d, 0xe9, 0x09, 0xd7];
 const SET_SQOS_SELECTOR: [u8; 4] = [0xc1, 0xe9, 0xbc, 0xda];

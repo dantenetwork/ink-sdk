@@ -98,7 +98,7 @@ mod greeting {
         /// If the item exists, it will be replaced.
         #[ink(message)]
         fn set_sqos(&mut self, sqos_item: ISQoS) {
-            self.only_owner()?;
+            // self.only_owner()?;
 
             let account_id = Self::env().account_id();
             cross_chain_helper::set_sqos(self, sqos_item, account_id);
@@ -142,12 +142,12 @@ mod greeting {
 
         /// Sets cross-chain contract address
         #[ink(message)]
-        pub fn set_cross_chain_contract(&mut self, contract: AccountId) -> Result<(), u8> {
-            self.only_owner()?;
+        pub fn set_cross_chain_contract(&mut self, contract: AccountId) {
+            // self.only_owner()?;
 
             self.cross_chain_contract = Some(contract);
 
-            Ok(())
+            // Ok(())
         }
 
         /// If caller is the owner of the contract
