@@ -229,7 +229,7 @@ mod greeting {
         fn set_cross_chain_contract_works() {
             let mut locker = Greeting::new();
             let contract_id = ink::env::test::callee::<ink::env::DefaultEnvironment>();
-            locker.set_cross_chain_contract(contract_id).unwrap();
+            locker.set_cross_chain_contract(contract_id);
         }
     }
 }
