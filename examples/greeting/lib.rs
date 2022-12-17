@@ -150,6 +150,13 @@ mod greeting {
             // Ok(())
         }
 
+        #[ink(message)]
+        pub fn clear_ret(&mut self, chain_name: String, id: u128) -> Result<(), u8>{
+            self.only_owner()?;
+            self.ret.remove(&(chain_name, id));
+            Ok(())
+        }
+
         /// If caller is the owner of the contract
         fn only_owner(&self) -> Result<(), u8> {
             let caller = self.env().caller();
