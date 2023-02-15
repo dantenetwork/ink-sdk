@@ -16,7 +16,7 @@ ink_sdk = { path = "<local path of ink_sdk>/contracts/", default-features = fals
 into `Cargo.toml` of your project.
 
 ## Library
-The library witch is contained in `contracts` is used to develop Ink! application contracts. The library provides two functional modules, practical traits and cross-chain interacting module.
+The library that is contained in `contracts` is used to develop Ink! application contracts. The library provides two functional modules, practical traits and cross-chain interacting module.
 
 ### Practical Traits
 #### [MultiDestContracts](./contracts/lib.rs#L37)
@@ -85,6 +85,43 @@ pub fn receive_computing_task(&mut self, payload: MessagePayload) -> String {
 }
 ```
 
+#### [set_sqos](./contracts/cross_chain_helper.rs#L132)
+
+The function `set_sqos` is used to set the type of SQoS when the contract receive cross-chain messages from other chains.
+
+Example is shown below, or you can refer it in the example [greeting](./examples/greeting/lib.rs#L99).
+```rust
+#[ink(message)]
+fn set_sqos(&mut self, sqos_item: ISQoS) {
+    ...
+
+    let account_id = Self::env().account_id();
+    cross_chain_helper::set_sqos(self, sqos_item, account_id);
+}
+```
+
+#### [get_sqos](./contracts/cross_chain_helper.rs#L132)
+
+The function `get_sqos` is used to view the contract's SQoS type.
+
+Example is shown below, or you can refer it in the example [greeting](./examples/greeting/lib.rs#L118).
+```rust
+#[ink(message)]
+#[ink(message)]
+fn get_sqos(&self) -> Option<ISQoS> {
+    let account_id = Self::env().account_id();
+    cross_chain_helper::get_sqos(self, account_id)
+}
+```
+
+### Other information
+The meaning of `session_type` in [Session](https://github.com/dantenetwork/message-ink/blob/b046fda43c11f4f1fc556102e9834558acea433b/payload/message_define.rs#L172):
+*`1`: send out without callback;
+* `2`: call out with callback;
+* `3`: callback message;
+* `104`: local error message;
+* `105`: remote error message.
+
 ## [Examples](./examples/)
 There are two examples in the repo, one is `greeting`, the other is `osComputing`.
 
@@ -93,6 +130,7 @@ The example shows how to send greeting messages to, and receive greeting message
 
 ### [osComputing](./examples/osComputing/)
 The example shows a scenario in which sb. want to send a outsource computing task to another chain, and receive the result.
+
 
 ## Usage
 ### Use Examples
@@ -107,18 +145,13 @@ You can use the library in a totally new ink! project.
 - Create a new ink! project, you can refer it here https://docs.substrate.io/tutorials/v3/ink-workshop/pt1/.
 - Change `dependencies`
     ```rust
-    ink_primitives = { version = "3.2.0", default-features = false }
-    ink_metadata = { version = "3.2.0", default-features = false, features = ["derive"], optional = true }
-    ink_env = { version = "3.2.0", default-features = false }
-    ink_storage = { version = "3.2.0", default-features = false }
-    ink_lang = { version = "3.2.0", default-features = false }
-    ink_prelude = { version = "3.2.0", default-features = false }
+    ink = { version = "4.0.0-alpha.3", default-features = false }
 
-    scale = { package = "parity-scale-codec", version = "3.1.5", default-features = false, features = ["derive"] }
-    scale-info = { version = "2.1.2", default-features = false, features = ["derive"], optional = true }
+    scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
+    scale-info = { version = "2", default-features = false, features = ["derive", "serde", "decode"] }
 
-    payload = { path = "<local path of message_ink>/message-ink/payload/", default-features = false, features = ["ink-as-dependency"] }
-    ink_sdk = { path = "<local path of ink_sdk>/contracts/", default-features = false, features = ["ink-as-dependency"] }
+    payload = { path = "../../../message-ink/payload/", default-features = false, features = ["ink-as-dependency"] }
+    ink_sdk = { path = "../../contracts/", default-features = false, features = ["ink-as-dependency"] }
     ```
 - Use modules in lib.rs, `use ink_sdk::{cross_chain_helper}`, and other modules if you need.
 - Implement the trait `cross_chain_helper::CrossChainBase`, the method `get_cross_chain_contract_address` has default implementation.

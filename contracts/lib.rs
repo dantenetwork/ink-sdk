@@ -1,7 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_lang as ink;
-
 pub mod cross_chain_helper;
 pub use crate::ink_sdk::{
     Ownable,
@@ -11,15 +9,14 @@ pub use crate::ink_sdk::{
 
 #[ink::contract]
 mod ink_sdk {
-    use ink_prelude::string::String;
-    use ink_prelude::vec::Vec;
+    use ink::prelude::string::String;
+    use ink::prelude::vec::Vec;
     use payload::message_define::{
-        ISQoSType,
         ISQoS,
     };
 
     /// This trait can be used when a contract need access control.
-    #[ink_lang::trait_definition]
+    #[ink::trait_definition]
     pub trait Ownable {
         /// Returns the account id of the current owner
         #[ink(message)]
@@ -33,40 +30,40 @@ mod ink_sdk {
     }
 
     /// This trait can be used when a contract needs to communicate with more than one other chain.
-    #[ink_lang::trait_definition]
+    #[ink::trait_definition]
     pub trait MultiDestContracts {
         /// Returns destination contract address and action name.
         #[ink(message)]
-        fn get_dest_contract_info(& self, chain_name: String, action: String) -> Option<(String, String)>;
+        fn get_dest_contract_info(& self, chain_name: String, action: String) -> Option<(Vec<u8>, Vec<u8>)>;
 
         /// Registers destination contract to which the ink contract will send message.
         #[ink(message)]
-        fn register_dest_contract(&mut self, chain_name: String, action: String, contract: String, dest_action: String) -> Result<(), u8>;
+        fn register_dest_contract(&mut self, chain_name: String, action: String, contract: Vec<u8>, dest_action: Vec<u8>) -> Result<(), u8>;
     }
 
     /// This trait can be used when a contract has custom SQoS demands.
-    #[ink_lang::trait_definition]
+    #[ink::trait_definition]
     pub trait CrossChainSQoS {
         /// Inserts one SQoS item.
         /// If the item exists, it will be replaced.
         #[ink(message)]
-        fn insert(&mut self, sqos_item: ISQoS) -> Result<(), u8>;
+        fn set_sqos(&mut self, sqos_item: ISQoS);
 
         /// Removes one SQoS item.
         #[ink(message)]
-        fn remove(&mut self, sqos_type: ISQoSType) -> Result<(), u8>;
+        fn remove_sqos(&mut self);
 
-        /// Clear all SQoS items.
-        #[ink(message)]
-        fn clear(&mut self) -> Result<(), u8>;
+        // /// Clear all SQoS items.
+        // #[ink(message)]
+        // fn clear(&mut self) -> Result<(), u8>;
 
-        /// Sets SQoS items
-        #[ink(message)]
-        fn set(&mut self, sqos: Vec<ISQoS>) -> Result<(), u8>;
+        // /// Sets SQoS items
+        // #[ink(message)]
+        // fn set(&mut self, sqos: Vec<ISQoS>) -> Result<(), u8>;
 
         /// Returns SQoS items
         #[ink(message)]
-        fn get(& self) -> Vec<ISQoS>;
+        fn get_sqos(& self) -> Option<ISQoS>;
     }
 
     /// Defines the storage of your contract.
