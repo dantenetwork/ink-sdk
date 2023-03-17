@@ -6,7 +6,7 @@ edition = "2021"
 
 [dependencies]
 
-payload = {git = "https://github.com/dantenetwork/message-ink", branch = "ink-2.0-alpha.3", default-features = false, features = ["ink-as-dependency"]}
+payload = {git = "https://github.com/dantenetwork/message-ink", default-features = false, features = ["ink-as-dependency"]}
 ink = {git = "https://github.com/paritytech/ink", tag = "v4.0.0-alpha.3", default-features = false}
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
