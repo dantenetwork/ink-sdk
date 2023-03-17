@@ -1,0 +1,42 @@
+name: Rust
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build `contracts`
+      run: |
+        cd ${{ github.workspace }}/contracts
+        cargo build --verbose
+    - name: Run tests of `contracts`
+      run: |
+        cd ${{ github.workspace }}/contracts
+        cargo test --verbose
+    - name: Build `greeting`
+      run: |
+        cd ${{ github.workspace }}/examples/greeting
+        cargo build --verbose
+    - name: Run tests of `greeting`
+      run: |
+        cd ${{ github.workspace }}/examples/greeting
+        cargo test --verbose
+    - name: Build `osComputing`
+      run: |
+        cd ${{ github.workspace }}/examples/osComputing
+        cargo build --verbose
+    - name: Run tests of `osComputing`
+      run: |
+        cd ${{ github.workspace }}/examples/osComputing
+        cargo test --verbose
